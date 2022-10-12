@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="coronais-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8081" />
+    </http:listener-config>
+	<configuration doc:name="Configuration" doc:id="7fddc601-1c68-4ac3-b241-fd64f647ce48" defaultErrorHandler-ref="globalError_Handler" />
+		<db:config name="Database_Config" doc:name="Database Config" doc:id="0ce5695c-5fe8-407f-80bf-71edb9960ff7" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
+	</db:config>
+	<configuration-properties doc:name="Configuration properties" doc:id="98e8c93f-1b41-432f-b709-a6111b010864" file="config.yaml" />
+	<sub-flow name="transformErrorMessage" doc:id="2000e4cc-f587-4a17-acbf-9be5f1f2e9a9" >
+		<ee:transform doc:name="Transform Message" doc:id="458f50b4-d868-45c1-abcd-5b6a4112559c">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	error_type: error.errorType.identifier,
+	error_description: error.description
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+	</sub-flow>
+	<error-handler name="globalError_Handler" doc:id="67646957-1d09-4f24-b529-2fb24669cca4" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="01710c0e-7634-4c57-9818-854e67481d5e" type="APIKIT:BAD_REQUEST, APP:BAD_REQUEST" >
+			<set-variable value="400" doc:name="Set Variable" doc:id="1915a41e-b432-4cf3-ab96-a0ea7a572bd7" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="b3abac75-87a2-480e-83d1-116c114acd65" name="transformErrorMessage"/>
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="bc9097a6-8e0f-4fb1-8302-72b2580a47a9" type="APIKIT:NOT_FOUND" >
+			<set-variable value="404" doc:name="Set Variable" doc:id="f5e1e0aa-5a6e-454f-828c-d25a93d5cfd9" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="5037fd87-04db-401a-91a1-d372f965e664" name="transformErrorMessage" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="8495b54e-e0cf-494b-b9f8-49a06adc1dcb" type="APIKIT:METHOD_NOT_ALLOWED" >
+			<set-variable value=" 405" doc:name="Set Variable" doc:id="0b358a70-9d61-4a5e-9f20-a03c064e322e" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="46a290cf-70aa-4217-98bb-d583c996a8c6" name="transformErrorMessage" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="b44ae34a-0303-40f9-8299-12315473cf06" type="APIKIT:NOT_ACCEPTABLE" >
+			<set-variable value="406" doc:name="Set Variable" doc:id="ce0092c0-2d09-4938-9acd-135d3002decb" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="e9d0d532-d291-422b-9fb3-edeb56436506" name="transformErrorMessage" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2482c394-18f5-4c04-8d34-57a87a635719" type="APIKIT:UNSUPPORTED_MEDIA_TYPE" >
+			<set-variable value="415" doc:name="Set Variable" doc:id="633724a1-62f3-43cd-abfa-e16da2f5ddd0" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="864da274-7c14-4152-a688-f7fae00b59fa" name="transformErrorMessage" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="076e30b5-ec91-4f1b-9363-2b94e3bca9da" type="APIKIT:NOT_IMPLEMENTED" >
+			<set-variable value="501" doc:name="Set Variable" doc:id="deafcef1-ab26-408c-a01c-ce184659da30" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="dc674363-1ea7-4a77-838e-9e7e2f5599d2" name="transformErrorMessage" />
+		</on-error-propagate>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="989b932e-b334-4a06-b7e0-cd9213ce5026" >
+			<set-variable value="500" doc:name="Set Variable" doc:id="4c0d89ea-1953-417d-a719-6b981a3e84bf" variableName="httpStatus" />
+			<flow-ref doc:name="Flow Reference" doc:id="bdfb2e5d-0627-4aa1-9983-91db9ace7503" name="transformErrorMessage" />
+		</on-error-propagate>
+	</error-handler>
+
+</mule>

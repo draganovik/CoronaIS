@@ -1,25 +1,30 @@
 DROP TABLE IF EXISTS Patient;
 CREATE TABLE Patient (
-    issued_state_id varchar(20),
+    id integer auto_increment,
+    state_issued_id varchar(20) unique,
     start_of_isolation date default(CURRENT_DATE),
     full_name nvarchar(200),
     departure_region_code varchar(3),
     has_symptoms bool default false,
+    phone_number varchar(18) not null,
     hospital_id integer,
     citizenship varchar(3) default 'SRB',
 
-    CONSTRAINT PK_Patient PRIMARY KEY (issued_state_id)
+    CONSTRAINT PK_Patient PRIMARY KEY (id)
 );
 DROP TABLE IF EXISTS PatientHistory;
 CREATE TABLE PatientHistory (
-    issued_state_id varchar(20),
+    id integer auto_increment,
+    state_issued_id varchar(20),
     start_of_isolation date default(CURRENT_DATE),
     full_name nvarchar(200),
     departure_region_code varchar(3),
     has_symptoms bool default false,
+    phone_number varchar(18) not null,
+    hospital_id integer,
     citizenship varchar(3) default 'SRB',
 
-    CONSTRAINT PK_PatientHistory PRIMARY KEY (issued_state_id, start_of_isolation)
+    CONSTRAINT PK_PatientHistory PRIMARY KEY (id)
 );
 DROP TABLE IF EXISTS CoronaHotspotRegion;
 CREATE TABLE CoronaHotspotRegion (
@@ -36,3 +41,5 @@ CREATE TABLE Hospital (
 
     CONSTRAINT PK_Hospital PRIMARY KEY (id)
 );
+
+SELECT * FROM Patient
