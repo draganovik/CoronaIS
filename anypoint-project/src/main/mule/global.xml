@@ -35,7 +35,7 @@ output application/json
 			<set-variable value="400" doc:name="Set Variable" doc:id="6e048792-97c5-40fd-b291-ac59463916a1" variableName="httpStatus" />
 			<flow-ref doc:name="Flow Reference" doc:id="cab36f2f-2b19-495c-9e3f-d9c872d55864" name="transformErrorMessage"/>
 		</on-error-propagate>
-		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2a6d3f8d-9104-4832-8cfe-61f655a954e9" type="APIKIT:NOT_FOUND" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2a6d3f8d-9104-4832-8cfe-61f655a954e9" type="APIKIT:NOT_FOUND, APP:NOT_FOUND" >
 			<set-variable value="404" doc:name="Set Variable" doc:id="0293917b-0808-4fe0-b124-9e82cb158633" variableName="httpStatus" />
 			<flow-ref doc:name="Flow Reference" doc:id="0bdbb4af-7b03-4f67-ad40-287cb5eb24b4" name="transformErrorMessage" />
 		</on-error-propagate>

@@ -19,24 +19,23 @@ type input_payload_register = {|
       <types:shape format="weave" example="examples/output_payload_patient_example.json"><![CDATA[%dw 2.0
 
 type output_payload_patient = {|
-  full_name: String, 
-  days_of_isolation_left: Number {"typeId": "int"}, 
   state_issued_id: String, 
-  departure_region_code: String, 
   start_of_isolation: String, 
+  days_of_isolation_left: Number {"typeId": "int"}, 
+  full_name: String, 
   departure_region: {|
     region_code: String, 
     region_name: String
   |}, 
   has_symptoms: Boolean, 
-  phone_number: String, 
   hospital: {|
     id: Number {"typeId": "int"}, 
     max_capacity: Number {"typeId": "int"}, 
     facility_name: String
   |}, 
+  phone_number: String, 
   citizenship: String
-|} {"example": "{\\\"full_name\\\":\\\"Jovan Popov\\\",\\\"days_of_isolation_left\\\":20,\\\"state_issued_id\\\":\\\"0002403258845\\\",\\\"departure_region_code\\\":\\\"MNE\\\",\\\"start_of_isolation\\\":\\\"2020-10-10\\\",\\\"departure_region\\\":{\\\"region_code\\\":\\\"MNE\\\",\\\"region_name\\\":\\\"Crna Gora\\\"},\\\"has_symptoms\\\":true,\\\"phone_number\\\":\\\"+381602255485\\\",\\\"hospital\\\":{\\\"id\\\":1,\\\"max_capacity\\\":420,\\\"facility_name\\\":\\\"Urgentni Korona Centar Novi Sad\\\"},\\\"citizenship\\\":\\\"SRB\\\"}"}
+|} {"example": "{\\\"state_issued_id\\\":\\\"999121234903\\\",\\\"start_of_isolation\\\":\\\"2020-10-10\\\",\\\"days_of_isolation_left\\\":20,\\\"full_name\\\":\\\"Mike Ross\\\",\\\"departure_region\\\":{\\\"region_code\\\":\\\"MNE\\\",\\\"region_name\\\":\\\"Crna Gora\\\"},\\\"has_symptoms\\\":false,\\\"hospital\\\":{\\\"id\\\":1,\\\"max_capacity\\\":420,\\\"facility_name\\\":\\\"Urgentni Korona Centar Novi Sad\\\"},\\\"phone_number\\\":\\\"+381652455888\\\",\\\"citizenship\\\":\\\"SRB\\\"}"}
 
 ]]></types:shape>
     </types:type>
@@ -63,6 +62,27 @@ properties:
         type: integer
       hospital_id?:
         type: integer]]></types:shape>
+    </types:type>
+    <types:type name="output_payload_hospital" format="json">
+      <types:shape format="weave" example="examples/output_payload_hospital_example.json"><![CDATA[%dw 2.0
+
+type output_payload_hospital = {|
+  id: Number {"typeId": "int"}, 
+  max_capacity: Number {"typeId": "int"}, 
+  facility_name: String
+|} {"example": "{\\\"id\\\":1,\\\"max_capacity\\\":420,\\\"facility_name\\\":\\\"Urgentni Korona Centar Novi Sad\\\"}"}
+
+]]></types:shape>
+    </types:type>
+    <types:type name="input_payload_region" format="json">
+      <types:shape format="weave" example="examples/input_payload_region_example.json"><![CDATA[%dw 2.0
+
+type input_payload_region = {|
+  region_code: String, 
+  region_name: String
+|} {"example": "{\\\"region_code\\\":\\\"MNE\\\",\\\"region_name\\\":\\\"Crna Gora\\\"}"}
+
+]]></types:shape>
     </types:type>
   </types:catalog>
   <types:enrichment select="#47ec537e-9f8f-4a54-894b-5687cb781a4e">
@@ -149,13 +169,68 @@ properties:
       </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
-  <types:enrichment select="#e310b1c0-a04c-470b-a03d-b6145047a997">
+  <types:enrichment select="#ccb1f7de-0bf6-4b79-9096-ee2081f3ad5a">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_hospital"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#4cce9803-eccf-4d2e-804f-dc03fe349e9d">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_hospital"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#35d194b0-97ac-4369-a673-449c317fe872">
     <types:processor-declaration>
       <types:input-event>
         <types:message>
-          <types:attributes type="input_attributes_patient_id"/>
+          <types:payload type="input_payload_register"/>
         </types:message>
       </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#0080af85-c0f9-493d-a521-f4cc9daa1826"/>
+  <types:enrichment select="#2b0bc6e7-7937-49b0-a4fd-6dbfe24c469f">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_patient"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#c84a02fe-205d-490a-8d27-1f8271ade58b">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_hospital"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#7368542f-9cab-4a9d-bbee-857adebf0854">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_hospital"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#a8294d8b-2456-4e9e-b75d-679c1d7c2c54">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_hospital"/>
+        </types:message>
+      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
 </types:mule>

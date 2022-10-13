@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    <apikit:config name="coronais-api-config" api="resource::b1b91335-220d-42e6-bf41-5c9eb06a09d0:coronais-api:2.0.0:raml:zip:coronais-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
+    <apikit:config name="coronais-api-config" api="resource::b1b91335-220d-42e6-bf41-5c9eb06a09d0:coronais-api:2.0.1:raml:zip:coronais-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="coronais-api-main">
         <http:listener config-ref="coronais-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -26,12 +26,12 @@
         <apikit:console config-ref="coronais-api-config" />
     </flow>
     <flow name="get:\patients\(issued_state_id):coronais-api-config" doc:id="f6e6e150-9305-45a5-9891-b5f8a77484c5">
-		<flow-ref doc:name="Flow Reference" doc:id="2377d9c0-d0ff-4290-abc4-3d35f307396e" name="getPatientById" />
+        <flow-ref doc:name="Flow Reference" doc:id="2377d9c0-d0ff-4290-abc4-3d35f307396e" name="getPatientById" />
     </flow>
     <flow name="get:\patients:coronais-api-config" doc:id="5417ff21-4cc3-4521-9171-c23b769f3a85">
-		<flow-ref doc:name="Flow Reference" doc:id="67e73fbc-43ca-4caa-ace1-2cb9058ea4c4" name="getPatients" />
+        <flow-ref doc:name="Flow Reference" doc:id="67e73fbc-43ca-4caa-ace1-2cb9058ea4c4" name="getPatients" />
     </flow>
     <flow name="post:\register:application\json:coronais-api-config" doc:id="47ec537e-9f8f-4a54-894b-5687cb781a4e">
-		<flow-ref doc:name="Flow Reference" doc:id="34a6f67e-ac11-43b6-bc35-e1c6f6e82f37" name="postRegister" />
+        <flow-ref doc:name="Flow Reference" doc:id="34a6f67e-ac11-43b6-bc35-e1c6f6e82f37" name="postRegister" />
     </flow>
 </mule>

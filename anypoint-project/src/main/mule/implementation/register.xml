@@ -1,30 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getDaysOfIsolation" doc:id="35d194b0-97ac-4369-a673-449c317fe872" >
+		<set-variable value="#[payload]" doc:name="Set raw SQL result to payload" doc:id="8b7153ab-6fc1-44e9-b2f8-b96b8894aa82" variableName="request"/>
+		<db:select doc:name="SELECT region codes from database" doc:id="6f1e4366-bff2-4884-b766-a7b62c65f3a2" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT region_code
+FROM CoronaHotspotRegion]]></db:sql>
+		</db:select>
+		<choice doc:name="Calculate isolation based on rules" doc:id="aa3b9f2f-ae1b-4175-bd32-f5b73ff7acb9" >
+			<when expression="#[payload..region_code contains(vars.request.departure_region_code)]">
+				<set-payload value="28" doc:name="Set Payload to '28'" doc:id="ef17e01b-7151-49b4-8701-2afbd84ad58a" />
+			</when>
+			<otherwise >
+				<set-payload value="14" doc:name="Set Payload to '14'" doc:id="b7b51c74-6d38-4590-a31f-78ac788d8e5d" />
+			</otherwise>
+		</choice>
+	</flow>
 	<flow name="postRegister" doc:id="cea1e800-f6ce-4391-81fc-aed4bb252066" >
-		<validation:is-true doc:name="Is true" doc:id="3e23977c-4201-4bd5-812d-0f2faccc409a" expression='#[payload.citizenship == "SRB"]' message="Only citizens of Republic of Serbia (SRB) are alowed to be registrated">
+		<validation:is-true doc:name="Check if citizenship is 'SRB'" doc:id="3e23977c-4201-4bd5-812d-0f2faccc409a" expression='#[payload.citizenship == "SRB"]' message="Only citizens of Republic of Serbia (SRB) are alowed to be registrated">
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:BAD_REQUEST" />
 		</validation:is-true>
-		<db:insert doc:name="Insert" doc:id="0080af85-c0f9-493d-a521-f4cc9daa1826" config-ref="Database_Config">
+		<set-variable value="#[payload.state_issued_id]" doc:name="Save state_issued_id to vars.patient_id" doc:id="b55baac1-0942-4ee1-a830-ff9d080a55d0" variableName="patient_id"/>
+		<choice doc:name="Insert into DB based on rules (has_symptoms)" doc:id="bfe62a53-eb8e-477e-8000-673860faf898" >
+			<when expression="#[payload.has_symptoms]">
+				<db:insert doc:name="Insert" doc:id="0080af85-c0f9-493d-a521-f4cc9daa1826" config-ref="Database_Config">
+			<error-mapping sourceType="DB:QUERY_EXECUTION" targetType="APP:BAD_REQUEST" />
 			<db:sql><![CDATA[INSERT INTO Patient
-(state_issued_id, full_name, departure_region_code, has_symptoms, phone_number, citizenship)
+(state_issued_id, full_name, start_of_isolation, departure_region_code, has_symptoms, phone_number, hospital_id, citizenship)
 VALUES
-(:state_issued_id, :full_name, :departure_region_code, :has_symptoms, :phone_number, :citizenship)]]></db:sql>
-			<db:input-parameters><![CDATA[#[{
+(:state_issued_id, :full_name, :date, :departure_region_code, :has_symptoms, :phone_number, :hospital_id, :citizenship)]]></db:sql>
+			<db:input-parameters><![CDATA[#[output application/java
+---
+{
+	date: now() as String {format: "y-MM-d"},
+	full_name: payload.full_name,
+	departure_region_code: payload.departure_region_code,
+	citizenship: payload.citizenship,
+	phone_number: payload.phone_number,
 	state_issued_id: payload.state_issued_id,
-    full_name: payload.full_name,
-    departure_region_code: payload.departure_region.region_code, 
-    has_symptoms: payload.has_symptoms, 
-    phone_number: payload.phone_number,
-    citizenship: payload.citizenship
+	has_symptoms: 1,
+	hospital_id: Mule::lookup('assignHospital', null).id default null
 }]]]></db:input-parameters>
-		</db:insert>
+		
+</db:insert>
+			</when>
+			<otherwise >
+				<db:insert doc:name="Insert" doc:id="da10fb13-2b99-421e-88a9-03c88f37df18" config-ref="Database_Config">
+					<error-mapping sourceType="DB:QUERY_EXECUTION" targetType="APP:BAD_REQUEST" />
+					<db:sql><![CDATA[INSERT INTO Patient
+(state_issued_id, full_name, start_of_isolation, departure_region_code, has_symptoms, phone_number, citizenship)
+VALUES
+(:state_issued_id, :full_name, :date, :departure_region_code, :has_symptoms, :phone_number, :citizenship)]]></db:sql>
+					<db:input-parameters><![CDATA[#[output application/java
+---
+{
+	date: now() as String {format: "y-MM-d"},
+	full_name: payload.full_name,
+	departure_region_code: payload.departure_region_code,
+	citizenship: payload.citizenship,
+	phone_number: payload.phone_number,
+	state_issued_id: payload.state_issued_id,
+	has_symptoms: 0,
+}]]]></db:input-parameters>
+				</db:insert>
+			</otherwise>
+		</choice>
+		<set-payload value="#[vars.patient_id]" doc:name="Return vars.patient_id to payload" doc:id="4e0b4b21-f06a-4c1a-aa65-54360ab937fd" />
+		<flow-ref doc:name="Get the Patient data back from DB" doc:id="6944b52e-58b0-4a16-a4f0-4d64cbd3a65a" name="readAndFormatPatient"/>
 		<logger level="INFO" message="post:\register:application\json:coronais-api-config" />
 	</flow>
 </mule>
