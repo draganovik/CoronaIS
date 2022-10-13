@@ -1,45 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
-	<flow name="postPatient" doc:id="1ffc8c31-46e4-49f8-9999-ae2539a64fa9" >
-		<validation:is-true doc:name="Is true" doc:id="10cf8e09-6ac9-4d24-b67b-3ba54c7beca5" expression='#[payload.citizenship == "SRB"]' message='Only citizens of Republic of Serbia (SRB) are alowed to be registrated'>
-			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:BAD_REQUEST" />
-		</validation:is-true>
-		<db:insert doc:name="Insert" doc:id="da64bf90-fcfb-44d9-a67a-fc2f56d606e3" config-ref="Database_Config">
-			<db:sql ><![CDATA[INSERT INTO Patient
-(state_issued_id, full_name, departure_region_code, has_symptoms, phone_number, citizenship)
-VALUES
-(:state_issued_id, :full_name, :departure_region_code, :has_symptoms, :phone_number, :citizenship)]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
-	state_issued_id: payload.state_issued_id,
-    full_name: payload.full_name,
-    departure_region_code: payload.departure_region.region_code, 
-    has_symptoms: payload.has_symptoms, 
-    phone_number: payload.phone_number,
-    citizenship: payload.citizenship
-}]]]></db:input-parameters>
-		</db:insert>
-		<logger level="INFO" message="post:\patients:application\json:coronais-api-config" />
-	</flow>
-	<flow name="patientsFlow" doc:id="1b22781b-1a28-4ac0-ba00-5aa92c8e4e70" >
-		<db:listener doc:name="On Table Row" doc:id="61d846b7-02ed-4613-aa97-382d0a40f5be" config-ref="Database_Config" table="Patient" watermarkColumn="id" idColumn="id">
-			<scheduling-strategy >
-				<fixed-frequency />
-			</scheduling-strategy>
-		</db:listener>
-	</flow>
-	<flow name="getPatientById" doc:id="96634cb7-e711-4061-90ee-86d5210f1df8" >
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="getPatients" doc:id="30179a03-12d6-4cbf-b1ef-af8e3d1bda3d" >
 		<logger level="INFO" message="get:\patients:coronais-api-config" />
 	</flow>
-	<flow name="getAllPatients" doc:id="498ff5bf-d1ad-4b32-b43b-31107578b122" >
-		<ee:transform>
+	<flow name="getPatientById" doc:id="b0e8a679-e399-4266-91fb-0e010faf4628" >
+		<ee:transform doc:id="e310b1c0-a04c-470b-a03d-b6145047a997">
             <ee:variables>
-                <ee:set-variable variableName="issued_state_id">attributes.uriParams.'issued_state_id'</ee:set-variable>
+                <ee:set-variable variableName="issued_state_id"><![CDATA[attributes.uriParams.'issued_state_id']]></ee:set-variable>
             </ee:variables>
         </ee:transform>
 		<logger level="INFO" message="get:\patients\(issued_state_id):coronais-api-config" />

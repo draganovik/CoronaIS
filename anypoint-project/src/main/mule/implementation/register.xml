@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<flow name="postRegister" doc:id="cea1e800-f6ce-4391-81fc-aed4bb252066" >
+		<validation:is-true doc:name="Is true" doc:id="3e23977c-4201-4bd5-812d-0f2faccc409a" expression='#[payload.citizenship == "SRB"]' message="Only citizens of Republic of Serbia (SRB) are alowed to be registrated">
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:BAD_REQUEST" />
+		</validation:is-true>
+		<db:insert doc:name="Insert" doc:id="0080af85-c0f9-493d-a521-f4cc9daa1826" config-ref="Database_Config">
+			<db:sql><![CDATA[INSERT INTO Patient
+(state_issued_id, full_name, departure_region_code, has_symptoms, phone_number, citizenship)
+VALUES
+(:state_issued_id, :full_name, :departure_region_code, :has_symptoms, :phone_number, :citizenship)]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	state_issued_id: payload.state_issued_id,
+    full_name: payload.full_name,
+    departure_region_code: payload.departure_region.region_code, 
+    has_symptoms: payload.has_symptoms, 
+    phone_number: payload.phone_number,
+    citizenship: payload.citizenship
+}]]]></db:input-parameters>
+		</db:insert>
+		<logger level="INFO" message="post:\register:application\json:coronais-api-config" />
+	</flow>
+</mule>
