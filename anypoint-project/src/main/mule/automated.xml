@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:gmail="http://www.mulesoft.org/schema/mule/gmail" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/gmail http://www.mulesoft.org/schema/mule/gmail/current/mule-gmail.xsd">
+		<flow name="globalFlow" doc:id="22e83ae9-710b-4e81-8501-21cab871df96" >
+		<scheduler doc:name="Scheduler" doc:id="1c5c107b-07cf-44e7-978e-8995a85b5354" >
+			<scheduling-strategy >
+				<cron expression="0 46 16 1/1 * ? *" timeZone="Europe/Belgrade" />
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="5f5e9a38-f2f9-4c56-9863-cdae8ebc0e30" message="Hi Novi Sad!"/>
+	</flow>
+</mule>

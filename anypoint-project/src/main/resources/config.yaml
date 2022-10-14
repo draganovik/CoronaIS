@@ -6,3 +6,8 @@ db:
   host: "localhost"
   password: "mysqlpw"
   port: '3306'
+smtp:
+  host: "smtp.gmail.com"
+  port: "587"
+  user: "noreply.coronais@gmail.com"
+  password: "CoronaisMuleSoft2022"

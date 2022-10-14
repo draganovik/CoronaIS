@@ -23,7 +23,7 @@ PA.citizenship
 FROM Patient PA
 LEFT JOIN Hospital HO ON HO.id = PA.hospital_id
 LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code
-WHERE PA.state_issued_id = 5002300672519
+WHERE PA.state_issued_id = 5002300672519;
 
 SELECT
 PA.state_issued_id,
@@ -41,4 +41,7 @@ CHR.region_code
 FROM Patient PA
 LEFT JOIN Hospital HO ON HO.id = PA.hospital_id
 LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code
-WHERE 1=1 AND CHR.region_code IS NOT NULL
+WHERE 1=1 AND CHR.region_code IS NOT NULL;
+
+SELECT PA.*
+FROM Patient PA

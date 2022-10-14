@@ -39,3 +39,6 @@ CREATE TABLE Hospital (
 
     CONSTRAINT PK_Hospital PRIMARY KEY (id)
 );
+
+
+
