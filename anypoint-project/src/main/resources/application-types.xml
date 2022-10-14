@@ -53,9 +53,11 @@ properties:
       <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
 type: object
 properties:
-  queryParameters:
+  queryParams:
     type: object
     properties:
+      hotspot_departure_region?:
+        type: boolean
       departure_region?:
         type: string
       reg_days_elapsed?:
@@ -231,6 +233,15 @@ type input_payload_region = {|
           <types:payload type="output_payload_hospital"/>
         </types:message>
       </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#c5561a2c-255b-4daf-b391-8f659b5f1a76">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:attributes type="input_attributes_patients"/>
+        </types:message>
+      </types:input-event>
     </types:processor-declaration>
   </types:enrichment>
 </types:mule>

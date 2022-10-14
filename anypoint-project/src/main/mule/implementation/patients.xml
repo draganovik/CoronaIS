@@ -64,22 +64,9 @@ fun isolationEndDate() =
 		<logger level="INFO" doc:name="Logger" doc:id="916a2f4e-1fe7-4812-8a63-3022ba57af35" />
 	</flow>
 	<flow name="getPatients" doc:id="30179a03-12d6-4cbf-b1ef-af8e3d1bda3d" >
+		<set-variable value='#[%dw 2.0&#10;output application/java&#10;---&#10;"SELECT&#10;PA.state_issued_id,&#10;PA.start_of_isolation,&#10;PA.full_name,&#10;PA.departure_region_code,&#10;CHR.region_name,&#10;PA.has_symptoms,&#10;PA.phone_number,&#10;PA.hospital_id,&#10;HO.max_capacity,&#10;HO.facility_name,&#10;PA.citizenship&#10;FROM Patient PA&#10;LEFT JOIN Hospital HO ON HO.id = PA.hospital_id&#10;LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code&#10;WHERE 1=1" ++&#10;&#10;(if(attributes.queryParams.hotspot_departure_region ~= "true")&#10;" AND CHR.region_code IS NOT NULL"&#10;else if(attributes.queryParams.hotspot_departure_region ~= "false")&#10;" AND CHR.region_code IS NULL"&#10;else ""&#10;)]' doc:name="Set DB Query as variable" doc:id="c5561a2c-255b-4daf-b391-8f659b5f1a76" variableName="dbQuery"/>
 		<db:select doc:name="SELECT all patients from DB" doc:id="136ac622-f043-43d7-b31f-15b37af1e7ce" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT
-PA.state_issued_id,
-PA.start_of_isolation,
-PA.full_name,
-PA.departure_region_code,
-CHR.region_name,
-PA.has_symptoms,
-PA.phone_number,
-PA.hospital_id,
-HO.max_capacity,
-HO.facility_name,
-PA.citizenship
-FROM Patient PA
-LEFT JOIN Hospital HO ON HO.id = PA.hospital_id
-LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code]]></db:sql>
+			<db:sql ><![CDATA[#[vars.dbQuery]]]></db:sql>
 		</db:select>
 		<validation:is-true doc:name="Patient data are returned" doc:id="1ba94e3f-2da0-40d0-8e43-246472f25a53" expression="#[sizeOf(payload) &gt; 0]" message="Patients not yet registered" >
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" />
@@ -101,7 +88,7 @@ payload map (payload01, index) -> {
 	full_name: payload01.full_name,
 	days_of_isolation_left: between(isolationEndDate(payload01.start_of_isolation) as Date, datetimeNow).days,
 	state_issued_id: payload01.state_issued_id,
-	start_of_isolation: payload01.start_of_isolation,
+	start_of_isolation: payload01.start_of_isolation as String {format: "y-MM-d"},
 	departure_region:
 		{
 			region_code: payload01.departure_region_code,
