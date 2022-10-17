@@ -43,5 +43,15 @@ LEFT JOIN Hospital HO ON HO.id = PA.hospital_id
 LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code
 WHERE 1=1 AND CHR.region_code IS NOT NULL;
 
-SELECT PA.*
+
+SELECT *
 FROM Patient PA
+WHERE DATE_ADD(PA.start_of_isolation, INTERVAL PA.isolation_days DAY) <= current_date();
+
+INSERT INTO Patient(start_of_isolation, isolation_days, state_issued_id, full_name, departure_region_code, phone_number, hospital_id)
+VALUES (DATE_SUB(now(), INTERVAL 14 DAY), 14, 1,'AC', 'ALB','013',null);
+
+DELETE FROM PatientHistory;
+
+SELECT * FROM PatientHistory;
+SELECT * FROM Patient;

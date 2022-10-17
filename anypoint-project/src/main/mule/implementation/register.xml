@@ -33,20 +33,21 @@ FROM CoronaHotspotRegion]]></db:sql>
 				<db:insert doc:name="Insert" doc:id="0080af85-c0f9-493d-a521-f4cc9daa1826" config-ref="Database_Config">
 			<error-mapping sourceType="DB:QUERY_EXECUTION" targetType="APP:BAD_REQUEST" />
 			<db:sql><![CDATA[INSERT INTO Patient
-(state_issued_id, full_name, start_of_isolation, departure_region_code, has_symptoms, phone_number, hospital_id, citizenship)
+(state_issued_id, full_name, start_of_isolation, isolation_days, departure_region_code, has_symptoms, phone_number, hospital_id, citizenship)
 VALUES
-(:state_issued_id, :full_name, :date, :departure_region_code, :has_symptoms, :phone_number, :hospital_id, :citizenship)]]></db:sql>
+(:state_issued_id, :full_name, :date, :isolation_days, :departure_region_code, :has_symptoms, :phone_number, :hospital_id, :citizenship)]]></db:sql>
 			<db:input-parameters><![CDATA[#[output application/java
 ---
 {
 	date: now() as String {format: "y-MM-d"},
+	isolation_days: Mule::lookup('getDaysOfIsolation', payload),
 	full_name: payload.full_name,
 	departure_region_code: payload.departure_region_code,
 	citizenship: payload.citizenship,
 	phone_number: payload.phone_number,
 	state_issued_id: payload.state_issued_id,
 	has_symptoms: 1,
-	hospital_id: Mule::lookup('assignHospital', null).id default null
+	hospital_id: Mule::lookup('assignHospital', null) default null
 }]]]></db:input-parameters>
 		
 </db:insert>
@@ -55,13 +56,14 @@ VALUES
 				<db:insert doc:name="Insert" doc:id="da10fb13-2b99-421e-88a9-03c88f37df18" config-ref="Database_Config">
 					<error-mapping sourceType="DB:QUERY_EXECUTION" targetType="APP:BAD_REQUEST" />
 					<db:sql><![CDATA[INSERT INTO Patient
-(state_issued_id, full_name, start_of_isolation, departure_region_code, has_symptoms, phone_number, citizenship)
+(state_issued_id, full_name, start_of_isolation, isolation_days, departure_region_code, has_symptoms, phone_number, citizenship)
 VALUES
-(:state_issued_id, :full_name, :date, :departure_region_code, :has_symptoms, :phone_number, :citizenship)]]></db:sql>
+(:state_issued_id, :full_name, :date, :isolation_days, :departure_region_code, :has_symptoms, :phone_number, :citizenship)]]></db:sql>
 					<db:input-parameters><![CDATA[#[output application/java
 ---
 {
 	date: now() as String {format: "y-MM-d"},
+	isolation_days: Mule::lookup('getDaysOfIsolation', payload),
 	full_name: payload.full_name,
 	departure_region_code: payload.departure_region_code,
 	citizenship: payload.citizenship,

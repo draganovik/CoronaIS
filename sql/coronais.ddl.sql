@@ -2,6 +2,7 @@ DROP TABLE IF EXISTS Patient;
 CREATE TABLE Patient (
     state_issued_id varchar(20) unique,
     start_of_isolation date default(CURRENT_DATE),
+    isolation_days integer default 14,
     full_name nvarchar(200),
     departure_region_code varchar(3),
     has_symptoms bool default false,
@@ -15,6 +16,7 @@ DROP TABLE IF EXISTS PatientHistory;
 CREATE TABLE PatientHistory (
     state_issued_id varchar(20),
     start_of_isolation date default(CURRENT_DATE),
+    isolation_days integer default 14,
     full_name nvarchar(200),
     departure_region_code varchar(3),
     has_symptoms bool default false,
@@ -39,6 +41,3 @@ CREATE TABLE Hospital (
 
     CONSTRAINT PK_Hospital PRIMARY KEY (id)
 );
-
-
-

@@ -19,12 +19,7 @@ LIMIT 1]]></db:sql>
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-{
-	id: payload.id default 0,
-	avalable_space: payload.available_space,
-	max_capacity: payload.max_capacity default 0,
-	facility_name: payload.facility_name default ""
-}]]></ee:set-payload>
+payload.id]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>

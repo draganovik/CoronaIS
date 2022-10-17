@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:gmail="http://www.mulesoft.org/schema/mule/gmail" xmlns:email="http://www.mulesoft.org/schema/mule/email"
-	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:gmail="http://www.mulesoft.org/schema/mule/gmail"
+	xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
-http://www.mulesoft.org/schema/mule/gmail http://www.mulesoft.org/schema/mule/gmail/current/mule-gmail.xsd">
-		<flow name="globalFlow" doc:id="22e83ae9-710b-4e81-8501-21cab871df96" >
+http://www.mulesoft.org/schema/mule/gmail http://www.mulesoft.org/schema/mule/gmail/current/mule-gmail.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+		<flow name="reportDailyStatsEmail" doc:id="22e83ae9-710b-4e81-8501-21cab871df96" >
 		<scheduler doc:name="Scheduler" doc:id="1c5c107b-07cf-44e7-978e-8995a85b5354" >
 			<scheduling-strategy >
 				<cron expression="0 46 16 1/1 * ? *" timeZone="Europe/Belgrade" />
@@ -13,4 +14,56 @@ http://www.mulesoft.org/schema/mule/gmail http://www.mulesoft.org/schema/mule/gm
 		</scheduler>
 		<logger level="INFO" doc:name="Logger" doc:id="5f5e9a38-f2f9-4c56-9863-cdae8ebc0e30" message="Hi Novi Sad!"/>
 	</flow>
+	<flow name="handlePatientEndOfIsolation" doc:id="2823d81e-21a2-4f32-99ee-0f0239ed1cbc" >
+		<scheduler doc:name="Scheduler" doc:id="d855d9de-6586-4fa2-b79c-1bc8639b4439" >
+			<scheduling-strategy >
+				<cron expression="0 0 0 1/1 * ? *" timeZone="Europe/Belgrade" />
+			</scheduling-strategy>
+		</scheduler>
+		<db:select doc:name="Select patients that are not in Isolation" doc:id="9dd427b0-68a6-472a-b33f-2031f8c99af2" config-ref="Database_Config">
+			<db:sql ><![CDATA[SELECT state_issued_id,
+ start_of_isolation,
+ isolation_days,
+ full_name,
+ departure_region_code,
+ has_symptoms,
+ phone_number,
+ hospital_id,
+ citizenship
+FROM Patient
+WHERE DATE_ADD(start_of_isolation, INTERVAL isolation_days DAY) <= current_date();]]></db:sql>
+		</db:select>
+		<set-variable value="#[payload.&amp;state_issued_id]" doc:name="Save patient IDs to vars.idsToDelete" doc:id="2f337199-9147-45ed-ae59-735361cee06f" variableName="idsToDelete"/>
+		<db:bulk-insert doc:name="Bulk insert patients to PatientHistory table" doc:id="d0e01488-5218-43c6-92ab-9528bca6f4d7" config-ref="Database_Config">
+			<db:bulk-input-parameters ><![CDATA[#[output application/java
+---
+payload]]]></db:bulk-input-parameters>
+			<db:sql ><![CDATA[INSERT INTO PatientHistory
+(state_issued_id,
+ start_of_isolation,
+ isolation_days,
+ full_name,
+ departure_region_code,
+ has_symptoms,
+ phone_number,
+ hospital_id,
+ citizenship)
+VALUES (:state_issued_id,
+ :start_of_isolation,
+ :isolation_days,
+ :full_name,
+ :departure_region_code,
+ :has_symptoms,
+ :phone_number,
+ :hospital_id,
+ :citizenship)]]></db:sql>
+		</db:bulk-insert>
+		<db:bulk-delete doc:name="Bulk delete patients from Patients table" doc:id="62858e3f-6df7-4caf-94b2-302f47334517" config-ref="Database_Config">
+			<db:bulk-input-parameters ><![CDATA[#[vars.idsToDelete]]]></db:bulk-input-parameters>
+			<db:sql ><![CDATA[DELETE FROM Patient WHERE state_issued_id = :state_issued_id;
+]]></db:sql>
+		</db:bulk-delete>
+		<logger level="INFO" doc:name="Logger" doc:id="3fabe400-41a8-4c12-bbfb-b5cb92e67af4" message="Hi Novi Sad!" />
+	</flow>
+
 </mule>
