@@ -8,7 +8,7 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<flow name="getDaysOfIsolation" doc:id="35d194b0-97ac-4369-a673-449c317fe872" >
+	<flow name="calcDaysOfIsolation" doc:id="35d194b0-97ac-4369-a673-449c317fe872" >
 		<set-variable value="#[payload]" doc:name="Set raw SQL result to payload" doc:id="8b7153ab-6fc1-44e9-b2f8-b96b8894aa82" variableName="request"/>
 		<db:select doc:name="SELECT region codes from database" doc:id="6f1e4366-bff2-4884-b766-a7b62c65f3a2" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT region_code
@@ -40,7 +40,7 @@ VALUES
 ---
 {
 	date: now() as String {format: "y-MM-d"},
-	isolation_days: Mule::lookup('getDaysOfIsolation', payload),
+	isolation_days: Mule::lookup('calcDaysOfIsolation', payload),
 	full_name: payload.full_name,
 	departure_region_code: payload.departure_region_code,
 	citizenship: payload.citizenship,
@@ -63,7 +63,7 @@ VALUES
 ---
 {
 	date: now() as String {format: "y-MM-d"},
-	isolation_days: Mule::lookup('getDaysOfIsolation', payload),
+	isolation_days: Mule::lookup('calcDaysOfIsolation', payload),
 	full_name: payload.full_name,
 	departure_region_code: payload.departure_region_code,
 	citizenship: payload.citizenship,

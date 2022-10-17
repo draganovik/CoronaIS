@@ -89,4 +89,6 @@ FROM Patient PA
 UNION
 SELECT *
 FROM PatientHistory PH) as UN
-WHERE has_symptoms = 1
+WHERE has_symptoms = 1;
+
+UPDATE Patient SET start_of_isolation = '2022-10-16' WHERE full_name = 'Mirko Marko';
