@@ -8,6 +8,6 @@ db:
   port: '3306'
 smtp:
   host: "smtp.gmail.com"
-  port: "587"
+  port: "465"
   user: "noreply.coronais@gmail.com"
-  password: "CoronaisMuleSoft2022"
+  password: "rvjaxdylbusbkmam"

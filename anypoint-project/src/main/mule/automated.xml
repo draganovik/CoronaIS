@@ -1,21 +1,68 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:gmail="http://www.mulesoft.org/schema/mule/gmail"
-	xmlns:email="http://www.mulesoft.org/schema/mule/email"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:gmail="http://www.mulesoft.org/schema/mule/gmail" xmlns:email="http://www.mulesoft.org/schema/mule/email" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
 http://www.mulesoft.org/schema/mule/gmail http://www.mulesoft.org/schema/mule/gmail/current/mule-gmail.xsd
-http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 		<flow name="reportDailyStatsEmail" doc:id="22e83ae9-710b-4e81-8501-21cab871df96" >
-		<scheduler doc:name="Scheduler" doc:id="1c5c107b-07cf-44e7-978e-8995a85b5354" >
+		<scheduler doc:name="Every day at 14:45" doc:id="1c5c107b-07cf-44e7-978e-8995a85b5354" >
 			<scheduling-strategy >
-				<cron expression="0 46 16 1/1 * ? *" timeZone="Europe/Belgrade" />
+				<cron expression="0 45 14 1/1 * ? *" timeZone="Europe/Belgrade" />
 			</scheduling-strategy>
 		</scheduler>
+		<db:query-single doc:name="Select in isolation" doc:id="e7b1cee0-554b-4a10-a964-132f1814f63f" config-ref="Database_Config" target="inIsolation" targetValue="#[payload.in_isolation]">
+			<db:sql ><![CDATA[SELECT COUNT(state_issued_id) as "in_isolation"
+FROM Patient
+WHERE state_issued_id NOT IN (SELECT PH.state_issued_id FROM PatientHistory PH);]]></db:sql>
+		</db:query-single>
+		<db:query-single doc:name="Select out of isolation" doc:id="f9252f4e-12e1-444c-a4a9-8a7c6c8b7408" config-ref="Database_Config" target="outOfIsolation" targetValue="#[payload.out_of_isolation]">
+			<db:sql ><![CDATA[SELECT COUNT(DISTINCT state_issued_id) as 'out_of_isolation'
+FROM PatientHistory
+WHERE state_issued_id NOT IN (SELECT PA.state_issued_id FROM Patient PA);]]></db:sql>
+		</db:query-single>
+		<db:query-single doc:name="Select number of hospitals" doc:id="189425e7-8740-40be-ae60-1aa8c97244de" config-ref="Database_Config" target="hospitalNumber" targetValue="#[payload.hospital_count]">
+			<db:sql><![CDATA[SELECT COUNT(id) as 'hospital_count'
+FROM Hospital]]></db:sql>
+		</db:query-single>
+		<db:query-single doc:name="Select has symptoms" doc:id="e1b10c00-b8af-4d17-9554-a7f512c95fc6" config-ref="Database_Config" target="hasSymptoms" targetValue="#[payload.has_symptoms]">
+			<db:sql><![CDATA[SELECT COUNT(state_issued_id) as has_symptoms
+FROM Patient
+WHERE has_symptoms = 1]]></db:sql>
+		</db:query-single>
+		<email:send doc:name="Send Daily Report" doc:id="58c742bb-62a6-4132-9a26-99de3fe1ffe4" config-ref="Email_SMTP" fromAddress="noreply.coronais@gmail.com" subject='#["[CORONAIS] Daily Report " ++ now() as String {format: "y-MM-d"}]'>
+			<email:to-addresses >
+				<email:to-address value="mladen.draganovic@devoteam.com" />
+			</email:to-addresses>
+			<email:body contentType="text/html" >
+				<email:content ><![CDATA[#["<div style=\"font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;color: DarkSlateGray;background-color: whitesmoke;padding: 1.4rem;\">
+    <h1>Daily Corona helth status report:</h1>
+    <h2 style=\"font-weight: 100\">Serbia COVID-19 data from Coronais API</h2>
+    <hr style=\"margin: 1.4rem 0\"/>
+    <h3 style=\"margin-top: 1.4rem;margin-bottom: 0.8rem;\">Patients with symptoms:</h3>
+    <p style=\"background-color: darkred;font-size: 1.4rem;color: whitesmoke;margin: 0;border-radius: 0.2rem;padding: 1rem;border: 0.2rem;\"><b>"++ vars.hasSymptoms as String ++"</b></p>
+    <h3 style=\"margin-top: 1.4rem;margin-bottom: 0.8rem;\">Patients in isolation:</h3>
+    <p style=\"font-size: 1.4rem;color: darkred;margin: 0;border-radius: 0.2rem;padding: 1rem;border: 0.2rem solid darkred;\"><b>"++ vars.inIsolation as String ++"</b></p>
+    <h3 style=\"margin-top: 1.4rem;margin-bottom: 0.8rem;\">Patients out of isolation:</h3>
+    <p style=\"background-color: green;font-size: 1.4rem;color: whitesmoke;margin: 0;border-radius: 0.2rem;padding: 1rem;border: 0.2rem;\"><b>"++ vars.outOfIsolation as String ++"</b></p>
+    <h3 style=\"margin-top: 1.4rem;margin-bottom: 0.8rem;\">Total number of hospitals:</h3>
+    <p style=\"background-color: darkslateblue;font-size: 1.4rem;color: whitesmoke;margin: 0;border-radius: 0.2rem;padding: 1rem;border: 0.2rem;\"><b>"++ vars.hospitalNumber as String ++"</b></p>
+    <hr style=\"margin: 1.4rem 0\"/>
+    <em style=\"display:block\">Email was autogenerated by coronais-ws</em>
+    <a href=\"https://devoteam.com\">Go to Devoteam website -></a>
+    <br>
+</div>"]]]></email:content>
+			</email:body>
+		</email:send>
 		<logger level="INFO" doc:name="Logger" doc:id="5f5e9a38-f2f9-4c56-9863-cdae8ebc0e30" message="Hi Novi Sad!"/>
-	</flow>
+	
+</flow>
 	<flow name="handlePatientEndOfIsolation" doc:id="2823d81e-21a2-4f32-99ee-0f0239ed1cbc" >
-		<scheduler doc:name="Scheduler" doc:id="d855d9de-6586-4fa2-b79c-1bc8639b4439" >
+		<scheduler doc:name="Every day at 00:00" doc:id="d855d9de-6586-4fa2-b79c-1bc8639b4439" >
 			<scheduling-strategy >
 				<cron expression="0 0 0 1/1 * ? *" timeZone="Europe/Belgrade" />
 			</scheduling-strategy>

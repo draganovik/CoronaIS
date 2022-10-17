@@ -55,3 +55,38 @@ DELETE FROM PatientHistory;
 
 SELECT * FROM PatientHistory;
 SELECT * FROM Patient;
+
+
+SELECT COUNT(state_issued_id)
+FROM PatientHistory
+WHERE state_issued_id NOT IN (SELECT PA.state_issued_id FROM Patient PA);
+
+SELECT COUNT(state_issued_id)
+FROM Patient
+WHERE state_issued_id NOT IN (SELECT PH.state_issued_id FROM PatientHistory PH);
+
+
+SELECT COUNT(DISTINCT state_issued_id)
+FROM PatientHistory
+WHERE
+state_issued_id NOT IN (SELECT PA.state_issued_id FROM Patient PA)
+AND
+has_symptoms = 1;
+
+SELECT COUNT(state_issued_id)
+FROM Patient
+WHERE state_issued_id NOT IN (SELECT PH.state_issued_id FROM PatientHistory PH)
+AND
+has_symptoms = 1;
+
+SELECT COUNT(id)
+FROM Hospital;
+
+SELECT COUNT(DISTINCT state_issued_id) as has_or_had_symptoms
+FROM (
+SELECT *
+FROM Patient PA
+UNION
+SELECT *
+FROM PatientHistory PH) as UN
+WHERE has_symptoms = 1
