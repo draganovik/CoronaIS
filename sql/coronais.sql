@@ -92,3 +92,11 @@ FROM PatientHistory PH) as UN
 WHERE has_symptoms = 1;
 
 UPDATE Patient SET start_of_isolation = '2022-10-16' WHERE full_name = 'Mirko Marko';
+
+
+SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
+FROM Hospital HO
+JOIN Patient PA ON PA.hospital_id = HO.id
+GROUP BY id, max_capacity, facility_name
+ORDER BY available_space desc
+LIMIT 1

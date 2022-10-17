@@ -7,9 +7,9 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 	<flow name="assignHospital" doc:id="637afba8-ad5c-45c0-8f6c-4a7251e4e843" >
 		<db:query-single doc:name="SELECT optimal hospital from database" doc:id="efd5ffd2-cf68-4992-90fc-e9cf378e9b32" config-ref="Database_Config" >
-			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id) - 1) as 'available_space'
+			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
 FROM Hospital HO
-LEFT JOIN Patient PA ON PA.hospital_id = HO.id
+JOIN Patient PA ON PA.hospital_id = HO.id
 GROUP BY id, max_capacity, facility_name
 ORDER BY available_space desc
 LIMIT 1]]></db:sql>
@@ -19,15 +19,17 @@ LIMIT 1]]></db:sql>
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-payload.id]]></ee:set-payload>
+if(!isEmpty(payload) and payload.id != 0 and payload.available_space > 0)
+payload.id
+else null]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
 	<flow name="getHospitaData" doc:id="c7ed6c4f-f6d4-4cd9-89c2-1a5976682e8f" >
 		<db:query-single doc:name="SELECT hospital from database" doc:id="a9627b95-20f4-41d3-878b-f2bb6830b7a8" config-ref="Database_Config" >
-			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id) - 1) as 'available_space'
+			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
 FROM Hospital HO
-LEFT JOIN Patient PA ON PA.hospital_id = HO.id
+JOIN Patient PA ON PA.hospital_id = HO.id
 WHERE id = :id]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	id: payload
