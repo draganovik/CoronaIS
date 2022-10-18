@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 		<db:query-single doc:name="SELECT optimal hospital from database" doc:id="efd5ffd2-cf68-4992-90fc-e9cf378e9b32" config-ref="Database_Config" >
 			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
 FROM Hospital HO
-JOIN Patient PA ON PA.hospital_id = HO.id
+LEFT JOIN Patient PA ON PA.hospital_id = HO.id
 GROUP BY id, max_capacity, facility_name
 ORDER BY available_space desc
 LIMIT 1]]></db:sql>

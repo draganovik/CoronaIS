@@ -93,6 +93,16 @@ type output_payload_status = {| message: String |} {"example": "{\\\"message\\\"
 
 ]]></types:shape>
     </types:type>
+    <types:type name="output_payload_error" format="json">
+      <types:shape format="weave" example="examples/output_payload_error.json"><![CDATA[%dw 2.0
+
+type output_payload_error = {|
+  code: String, 
+  message: String
+|} {"example": "{\\\"code\\\":\\\"NOT_FOUND\\\",\\\"message\\\":\\\"Resource not found\\\"}"}
+
+]]></types:shape>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#47ec537e-9f8f-4a54-894b-5687cb781a4e">
     <types:processor-declaration>
@@ -279,6 +289,24 @@ type output_payload_status = {| message: String |} {"example": "{\\\"message\\\"
       <types:output-event>
         <types:message>
           <types:payload type="output_payload_status"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#977bcbf0-a540-44c3-bb2b-27fe90cedb7f">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_error"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#bdabe4f1-b79c-422e-9a2b-a6663f9ebf9e">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_error"/>
         </types:message>
       </types:output-event>
     </types:processor-declaration>
