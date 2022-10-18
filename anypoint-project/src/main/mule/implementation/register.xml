@@ -36,7 +36,7 @@ WHERE state_issued_id = :id]]></db:sql>
 	id: vars.request.state_issued_id
 }]]]></db:input-parameters>
 		</db:query-single>
-		<validation:is-true doc:name="state_issued_id is unique" doc:id="1bbb13ed-5fb8-4629-b73c-db2c6f96e754" expression="#[sizeOf(payload) == 0]" message='#["Patient with state_issued_id: " ++ vars.request.state_issued_id ++ " is already registered"]'>
+		<validation:is-true doc:name="state_issued_id is unique" doc:id="1bbb13ed-5fb8-4629-b73c-db2c6f96e754" expression="#[sizeOf(payload) == 0]" message='#["Patient with state_issued_id: " ++ vars.request.state_issued_id ++ " is already in isolation"]'>
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:BAD_REQUEST" />
 		</validation:is-true>
 		<choice doc:name="Insert into DB based on rules (has_symptoms)" doc:id="bfe62a53-eb8e-477e-8000-673860faf898" >
