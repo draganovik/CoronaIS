@@ -31,10 +31,12 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		<ee:transform doc:name="Transform Message" doc:id="bdabe4f1-b79c-422e-9a2b-a6663f9ebf9e">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
+import capitalize from dw::core::Strings
+
 output application/json
 ---
 {
-	error_type: error.errorType.identifier,
+	error_type: capitalize(error.errorType.identifier),
 	error_description: error.description
 }]]></ee:set-payload>
 				</ee:message>

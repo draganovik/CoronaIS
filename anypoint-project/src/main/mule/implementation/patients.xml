@@ -49,7 +49,7 @@ fun isolationEndDate() =
 	full_name: payload.full_name,
 	days_of_isolation_left: between(isolationEndDate() as Date, datetimeNow).days,
 	state_issued_id: payload.state_issued_id,
-	start_of_isolation: payload.start_of_isolation,
+	start_of_isolation: payload.start_of_isolation as String {format: "y-MM-d"},
 	departure_region:
 		{
 			region_code: payload.departure_region_code,
