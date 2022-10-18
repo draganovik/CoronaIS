@@ -21,7 +21,7 @@ http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/cu
 		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
 	</db:config>
 	<configuration-properties doc:name="Configuration properties" doc:id="4f3d0ae2-0859-43ff-9114-0576e921f087" file="config.yaml" />
-	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="531edd75-3e79-45c9-abc6-bc21caa907dd" from="Coronais API" >
+	<email:smtp-config name="Email_SMTP" doc:name="Email SMTP" doc:id="531edd75-3e79-45c9-abc6-bc21caa907dd" from="CoronaIS API" >
 		<email:smtps-connection host="${smtp.host}" port="${smtp.port}" user="${smtp.user}" password="${smtp.password}" >
 		<tls:context enabledProtocols="TLSv1.2,SSLv3">
             <tls:trust-store insecure="true"/>

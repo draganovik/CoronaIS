@@ -34,14 +34,11 @@ FROM Hospital]]></db:sql>
 FROM Patient
 WHERE has_symptoms = 1]]></db:sql>
 		</db:query-single>
-		<email:send doc:name="Send Daily Report" doc:id="58c742bb-62a6-4132-9a26-99de3fe1ffe4" config-ref="Email_SMTP" fromAddress="noreply.coronais@gmail.com" subject='#["[CORONAIS] Daily Report " ++ now() as String {format: "y-MM-d"}]'>
-			<email:to-addresses >
-				<email:to-address value="mladen.draganovic@devoteam.com" />
-			</email:to-addresses>
+		<email:send doc:name="Send Daily Report" doc:id="58c742bb-62a6-4132-9a26-99de3fe1ffe4" config-ref="Email_SMTP" fromAddress="#[Mule::p('smtp.user')]" subject='#["[CORONAIS] Daily Report " ++ now() as String {format: "y-MM-d"}]' toAddresses="#[Mule::p(&quot;smtp.receivers&quot;) splitBy(',')]">
 			<email:body contentType="text/html" >
 				<email:content ><![CDATA[#["<div style=\"max-width:100ch;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;color: DarkSlateGray;background-color: whitesmoke;padding: 1.4rem;\">
     <h1 style=\"margin: 0\">Daily Corona health status report:</h1>
-    <h2 style=\"font-weight: 100\">Serbia COVID-19 data from Coronais API</h2>
+    <h2 style=\"font-weight: 100\">Serbia COVID-19 data from CoronaIS API</h2>
     <hr style=\"margin: 1.4rem 0\"/>
     <h3 style=\"margin-top: 1.4rem;margin-bottom: 0.8rem;\">Patients with symptoms:</h3>
     <p style=\"text-align: center;background-color: darkred;font-size: 1.4rem;color: whitesmoke;margin: 0;border-radius: 0.2rem;padding: 1rem;border: 0.2rem;\"><b>"++ vars.hasSymptoms as String ++"</b></p>
