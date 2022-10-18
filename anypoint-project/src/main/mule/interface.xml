@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    <apikit:config name="coronais-api-config" api="resource::b1b91335-220d-42e6-bf41-5c9eb06a09d0:coronais-api:2.2.0:raml:zip:coronais-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="coronais-api-config" api="resource::b1b91335-220d-42e6-bf41-5c9eb06a09d0:coronais-api:2.2.2:raml:zip:coronais-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="coronais-api-main">
         <http:listener config-ref="coronais-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -34,7 +34,7 @@
     <flow name="post:\register:application\json:coronais-api-config" doc:id="47ec537e-9f8f-4a54-894b-5687cb781a4e">
         <flow-ref doc:name="Flow Reference" doc:id="34a6f67e-ac11-43b6-bc35-e1c6f6e82f37" name="postRegister" />
     </flow>
-    <flow name="get:\patients\(issued_state_id)\status:coronais-api-config">
-        <flow-ref doc:name="Flow Reference" doc:id="e608d394-ead1-4166-a06d-856aab3d8a76" name="getPatientStatus"/>
+    <flow name="get:\patients\(issued_state_id)\status:coronais-api-config" doc:id="e7d28f34-bd38-4b0e-96d3-72b1c2bf7069">
+        <flow-ref doc:name="Flow Reference" doc:id="e608d394-ead1-4166-a06d-856aab3d8a76" name="getPatientStatus" />
     </flow>
 </mule>

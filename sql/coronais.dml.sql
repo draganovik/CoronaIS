@@ -1,5 +1,6 @@
 INSERT INTO Hospital VALUES (default, 6, 'Urgentni Centar Novi Sad');
 INSERT INTO Hospital VALUES (default, 3, 'Urgentni Centar Beograd');
+/*INSERT INTO Hospital VALUES (default, 100, 'Kovid Bolnica Beška');*/
 
 INSERT INTO CoronaHotspotRegion VALUES ('AUS','Australija');
 INSERT INTO CoronaHotspotRegion VALUES ('RUS','Rusija');

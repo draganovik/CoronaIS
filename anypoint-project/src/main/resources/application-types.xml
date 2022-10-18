@@ -89,7 +89,7 @@ type input_payload_region = {|
     <types:type name="output_payload_status" format="json">
       <types:shape format="weave" example="examples/output_payload_status.json"><![CDATA[%dw 2.0
 
-type output_payload_status = {| status: String |} {"example": "{\\\"status\\\":\\\"Patient is in self isolation at home for 4 more days\\\"}"}
+type output_payload_status = {| message: String |} {"example": "{\\\"message\\\":\\\"Patient is in self isolation at home for 4 more days\\\"}"}
 
 ]]></types:shape>
     </types:type>
@@ -103,7 +103,7 @@ type output_payload_status = {| status: String |} {"example": "{\\\"status\\\":\
       </types:input-event>
       <types:output-event>
         <types:message>
-          <types:payload type="output_payload_patient"/>
+          <types:payload type="output_payload_status"/>
         </types:message>
       </types:output-event>
     </types:processor-declaration>
@@ -117,7 +117,7 @@ type output_payload_status = {| status: String |} {"example": "{\\\"status\\\":\
       </types:input-event>
       <types:output-event>
         <types:message>
-          <types:payload type="output_payload_patient"/>
+          <types:payload type="output_payload_status"/>
         </types:message>
       </types:output-event>
     </types:processor-declaration>
@@ -258,9 +258,23 @@ type output_payload_status = {| status: String |} {"example": "{\\\"status\\\":\
           <types:attributes type="input_attributes_patient_id"/>
         </types:message>
       </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_status"/>
+        </types:message>
+      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
   <types:enrichment select="#8e447487-b8ca-45b5-bff6-5811600748e6">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_status"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#e7d28f34-bd38-4b0e-96d3-72b1c2bf7069">
     <types:processor-declaration>
       <types:output-event>
         <types:message>

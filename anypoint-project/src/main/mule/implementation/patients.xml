@@ -116,16 +116,16 @@ payload map (payload01, index) -> {
 	</flow>
 	<flow name="getPatientStatus" doc:id="e0f5c232-f2e7-4792-97e1-c8b7aa72b854" >
 		<flow-ref doc:name="Get patient by id" doc:id="acf5e63a-d55a-4451-b416-81d0c6d89473" name="getPatientById"/>
-		<ee:transform doc:name="Transform Message" doc:id="8e447487-b8ca-45b5-bff6-5811600748e6" >
+		<ee:transform doc:name="Transform data to status format" doc:id="8e447487-b8ca-45b5-bff6-5811600748e6" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
 {
-	status: 'Patient '++ payload.full_name ++ ' is in ' ++
-	(if(isEmpty(payload.hospital)) 'self ' else '') ++
+	message: 'Patient ' ++ payload.full_name ++ ' is in ' ++
+	(if ( isEmpty(payload.hospital) ) 'self ' else '') ++
 	'isolation at ' ++
-	(if(isEmpty(payload.hospital)) 'home' else (payload.hospital.facility_name default "home")) ++
+	(if ( isEmpty(payload.hospital) ) 'home' else (payload.hospital.facility_name default "home")) ++
 	' for ' ++ (payload.days_of_isolation_left default '0') ++ ' more days.'
 }]]></ee:set-payload>
 			</ee:message>
