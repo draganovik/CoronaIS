@@ -114,4 +114,22 @@ payload map (payload01, index) -> {
 		<flow-ref doc:name="Reference readAndFormatPatient" doc:id="2318e64f-4f3a-4818-afce-e590ad11b49b" name="readAndFormatPatient"/>
 		<logger level="INFO" message="get:\patients\(issued_state_id):coronais-api-config" />
 	</flow>
+	<flow name="getPatientStatus" doc:id="e0f5c232-f2e7-4792-97e1-c8b7aa72b854" >
+		<flow-ref doc:name="Get patient by id" doc:id="acf5e63a-d55a-4451-b416-81d0c6d89473" name="getPatientById"/>
+		<ee:transform doc:name="Transform Message" doc:id="8e447487-b8ca-45b5-bff6-5811600748e6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	status: 'Patient '++ payload.full_name ++ ' is in ' ++
+	(if(isEmpty(payload.hospital)) 'self ' else '') ++
+	'isolation at ' ++
+	(if(isEmpty(payload.hospital)) 'home' else (payload.hospital.facility_name default "home")) ++
+	' for ' ++ (payload.days_of_isolation_left default '0') ++ ' more days.'
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="d9306685-1950-447a-9867-c0c1b06de7b9" message="get:\patients\(issued_state_id)\status:coronais-api-config" />
+	</flow>
 </mule>

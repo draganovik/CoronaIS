@@ -86,6 +86,13 @@ type input_payload_region = {|
 
 ]]></types:shape>
     </types:type>
+    <types:type name="output_payload_status" format="json">
+      <types:shape format="weave" example="examples/output_payload_status.json"><![CDATA[%dw 2.0
+
+type output_payload_status = {| status: String |} {"example": "{\\\"status\\\":\\\"Patient is in self isolation at home for 4 more days\\\"}"}
+
+]]></types:shape>
+    </types:type>
   </types:catalog>
   <types:enrichment select="#47ec537e-9f8f-4a54-894b-5687cb781a4e">
     <types:processor-declaration>
@@ -166,7 +173,7 @@ type input_payload_region = {|
       </types:input-event>
       <types:output-event>
         <types:message>
-          <types:payload type="output_payload_patient[]"/>
+          <types:payload type="output_payload_patient"/>
         </types:message>
       </types:output-event>
     </types:processor-declaration>
@@ -242,6 +249,24 @@ type input_payload_region = {|
           <types:attributes type="input_attributes_patients"/>
         </types:message>
       </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#e0f5c232-f2e7-4792-97e1-c8b7aa72b854">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:attributes type="input_attributes_patient_id"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#8e447487-b8ca-45b5-bff6-5811600748e6">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_status"/>
+        </types:message>
+      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
 </types:mule>
