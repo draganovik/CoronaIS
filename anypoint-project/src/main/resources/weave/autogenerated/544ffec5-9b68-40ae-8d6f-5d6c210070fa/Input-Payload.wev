@@ -1,0 +1,11 @@
+%dw 2.0
+
+type auto_544ffec5_9b68_40ae_8d6f_5d6c210070fa_Input_Payload = {
+  max_capacity: Number, 
+  avalable_space?: Number, 
+  id?: Number, 
+  facility_name: String, 
+  _?: Any
+} {"description": "Hospital Details",
+"label": "Hospital"}
+

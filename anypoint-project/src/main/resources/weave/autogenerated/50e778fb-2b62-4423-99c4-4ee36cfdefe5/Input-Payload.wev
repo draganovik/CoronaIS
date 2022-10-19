@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_50e778fb_2b62_4423_99c4_4ee36cfdefe5_Input_Payload = Array<{  region_name?: String,   region_code: String,   _?: Any} {"description": "Corona Hotspot Region Details",
+"label": "Region"}>
+
