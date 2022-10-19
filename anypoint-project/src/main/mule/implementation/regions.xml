@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="postRegion" doc:id="ddf8db74-46df-475c-bf4f-026f645dec4f" >
+		<logger level="INFO" message="post:\regions:application\json:coronais-api-config" />
+	</flow>
+	<flow name="getAllRegions" doc:id="50e778fb-2b62-4423-99c4-4ee36cfdefe5" >
+		<logger level="INFO" message="get:\regions:coronais-api-config" />
+	</flow>
+	<flow name="getRegionByRegionCode" doc:id="168fb3e7-013a-4503-8795-000a6a720f8e" >
+		<ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="region_code">attributes.uriParams.'region_code'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<logger level="INFO" message="get:\regions\(region_code):coronais-api-config" />
+	</flow>
+	<flow name="deleteRegionByRegionCode" doc:id="2ac119d1-9f93-4f38-ae58-3d27974c0b64" >
+		<ee:transform doc:name="Transform Message" doc:id="65c89e69-6189-45cb-bfdb-49c3e4aa9f7e">
+			<ee:variables>
+				<ee:set-variable variableName="region_code"><![CDATA[attributes.uriParams.'region_code']]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" message="delete:\regions\(region_code):coronais-api-config" />
+	</flow>
+</mule>

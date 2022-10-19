@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_bb50d5c9_4410_495a_87d0_6e8e493fdb07_Input_Payload = Array<{  max_capacity: Number,   avalable_space?: Number,   id?: Number,   facility_name: String,   _?: Any} {"description": "Hospital Details",
+"label": "Hospital"}>
+

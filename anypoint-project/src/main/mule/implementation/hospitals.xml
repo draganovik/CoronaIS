@@ -5,6 +5,28 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="postHospital" doc:id="1d58942c-149e-431f-99a5-22c5edb4387d" >
+		<logger level="INFO" message="post:\hospitals:application\json:coronais-api-config" />
+	</flow>
+	<flow name="getAllHospitals" doc:id="bb50d5c9-4410-495a-87d0-6e8e493fdb07" >
+		<logger level="INFO" message="get:\hospitals:coronais-api-config" />
+	</flow>
+	<flow name="getHospitalById" doc:id="544ffec5-9b68-40ae-8d6f-5d6c210070fa" >
+		<ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<logger level="INFO" message="get:\hospitals\(id):coronais-api-config" />
+	</flow>
+	<flow name="deleteHospitalById" doc:id="d42185b0-74cf-408a-893f-b9dc2827789c" >
+		<ee:transform>
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<logger level="INFO" message="delete:\hospitals\(id):coronais-api-config" />
+	</flow>
 	<flow name="assignHospital" doc:id="637afba8-ad5c-45c0-8f6c-4a7251e4e843" >
 		<db:query-single doc:name="SELECT optimal hospital from database" doc:id="efd5ffd2-cf68-4992-90fc-e9cf378e9b32" config-ref="Database_Config" >
 			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
