@@ -52,7 +52,7 @@ VALUES(default, :max_capacity, :facility_name)]]></db:sql>
 output application/json
 ---
 {
-	message: "Hospital \"" ++ vars.request.facility_name ++ "\" added"
+	message: "Hospital '" ++ vars.request.facility_name ++ "' added"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>

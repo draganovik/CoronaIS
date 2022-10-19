@@ -35,7 +35,7 @@ VALUES(:region_code, :region_name)]]></db:sql>
 output application/json
 ---
 {
-	message: "Region code: " ++ vars.request.region_code ++ " added"
+	message: "Region code: '" ++ vars.request.region_code ++ "' added"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
