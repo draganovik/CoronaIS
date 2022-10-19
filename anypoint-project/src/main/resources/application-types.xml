@@ -987,6 +987,11 @@ properties:
           <types:variable name="httpStatus" type="auto_168fb3e7-013a-4503-8795-000a6a720f8e_Input-Variables-httpStatus"/>
         </types:variables>
       </types:input-event>
+      <types:output-event>
+        <types:message>
+          <types:payload type="input_payload_region"/>
+        </types:message>
+      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
   <types:enrichment select="#50e778fb-2b62-4423-99c4-4ee36cfdefe5">
@@ -1041,7 +1046,7 @@ properties:
     <types:processor-declaration>
       <types:input-event>
         <types:message>
-          <types:payload type="auto_ddf8db74-46df-475c-bf4f-026f645dec4f_Input-Payload"/>
+          <types:payload type="input_payload_region"/>
           <types:attributes type="auto_ddf8db74-46df-475c-bf4f-026f645dec4f_Input-Attributes"/>
         </types:message>
         <types:variables>

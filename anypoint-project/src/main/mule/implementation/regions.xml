@@ -1,29 +1,112 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<flow name="postRegion" doc:id="ddf8db74-46df-475c-bf4f-026f645dec4f" >
+		<set-variable value="#[payload]" doc:name="Set payload to vars.request" doc:id="84b55d33-e361-47e0-a718-ca8bf3f8fa9f" variableName="request" />
+		<db:query-single doc:name="SELECT region_code from database" doc:id="3e4a7d86-8a4f-4b82-ba11-d97d457ea5f0" config-ref="Database_Config" >
+			<db:sql ><![CDATA[SELECT region_code
+FROM CoronaHotspotRegion
+WHERE region_code = :code]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	code: vars.request.region_code
+}]]]></db:input-parameters>
+		</db:query-single>
+		<validation:is-true doc:name="region_code is unique" doc:id="6f397837-00fb-4659-ad44-40288c2c8490" expression="#[sizeOf(payload) == 0]" message='#["Region with code: " ++ vars.request.region_code ++ " is already a added"]' >
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:BAD_REQUEST" />
+		</validation:is-true>
+		<db:insert doc:name="INSERT Region" doc:id="6bb04162-7f8f-469f-8101-7d4cea911978" config-ref="Database_Config" >
+			<db:sql ><![CDATA[INSERT INTO CoronaHotspotRegion
+VALUES(:region_code, :region_name)]]></db:sql>
+			<db:input-parameters ><![CDATA[#[output application/json
+---
+{
+	region_code: vars.request.region_code,
+	region_name: vars.request.region_name
+}]]]></db:input-parameters>
+		</db:insert>
+		<ee:transform doc:name="Transform Status response" doc:id="9f921b8b-e597-4048-b281-dc40553a5cd5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "Region code: " ++ vars.request.region_code ++ " added"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<logger level="INFO" message="post:\regions:application\json:coronais-api-config" />
 	</flow>
 	<flow name="getAllRegions" doc:id="50e778fb-2b62-4423-99c4-4ee36cfdefe5" >
+		<db:select doc:name="SELECT ALL Regions from database" doc:id="2901f761-1b4f-46ed-908c-3e9a78776660" config-ref="Database_Config" >
+			<db:sql ><![CDATA[SELECT region_code, region_name
+FROM CoronaHotspotRegion]]></db:sql>
+		</db:select>
+		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="de1b23fc-a481-45f4-905d-e249780c5db4" message="Regions not found" >
+			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
+		</validation:is-not-empty-collection>
+		<ee:transform doc:name="Transform all Regions to datatype array" doc:id="8d7d6dff-09e2-4136-8252-3c49fabdaeea" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map ( payload01 , indexOfPayload01 ) -> {
+	region_name: payload01.region_name,
+	region_code: payload01.region_code
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<logger level="INFO" message="get:\regions:coronais-api-config" />
 	</flow>
 	<flow name="getRegionByRegionCode" doc:id="168fb3e7-013a-4503-8795-000a6a720f8e" >
-		<ee:transform>
-            <ee:variables>
-                <ee:set-variable variableName="region_code">attributes.uriParams.'region_code'</ee:set-variable>
-            </ee:variables>
-        </ee:transform>
+		<db:query-single doc:name="SELECT Region from database" doc:id="81974093-ef63-4454-b915-14c38b8c1d19" config-ref="Database_Config" >
+			<db:sql ><![CDATA[SELECT region_code, region_name
+FROM CoronaHotspotRegion
+WHERE region_code = :code]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	code: attributes.uriParams.region_code
+}]]]></db:input-parameters>
+		</db:query-single>
+		<validation:is-not-null doc:name="payload region_code Is not null" doc:id="a21d2b20-f41e-4305-8f4a-ab7b24f22a4a" value="#[payload.region_code]" message="Region is not a COVID19 hotspot" >
+			<error-mapping sourceType="VALIDATION:NULL" targetType="APP:NOT_FOUND" />
+		</validation:is-not-null>
+		<ee:transform doc:name="Transform hospital to datatype" doc:id="42c4790d-1794-47ee-8fa7-3443d1f49d42" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	region_code: payload.region_code,
+	region_name: payload.region_name default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
 		<logger level="INFO" message="get:\regions\(region_code):coronais-api-config" />
 	</flow>
 	<flow name="deleteRegionByRegionCode" doc:id="2ac119d1-9f93-4f38-ae58-3d27974c0b64" >
-		<ee:transform doc:name="Transform Message" doc:id="65c89e69-6189-45cb-bfdb-49c3e4aa9f7e">
-			<ee:variables>
-				<ee:set-variable variableName="region_code"><![CDATA[attributes.uriParams.'region_code']]></ee:set-variable>
-			</ee:variables>
-		</ee:transform>
+		<set-variable value="#[attributes.uriParams.region_code]" doc:name="SET URI region_code to vars.regionCode" doc:id="0920b187-3aef-4afe-ab1c-269beefc08ec" variableName="regionCode" />
+		<db:query-single doc:name="SELECT Hospital from database" doc:id="ecaebc05-c772-4507-a71a-54aef2b25a7e" config-ref="Database_Config" >
+			<db:sql ><![CDATA[SELECT region_code
+FROM CoronaHotspotRegion
+WHERE region_code = :code]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	code: vars.regionCode
+}]]]></db:input-parameters>
+		</db:query-single>
+		<validation:is-not-null doc:name="payload region_code is not null" doc:id="cb92e6b4-a273-49f4-bcc5-4b6990ede377" value="#[payload.region_code]" message="Region was not registrated as a COVID19 hotspot" >
+			<error-mapping sourceType="VALIDATION:NULL" targetType="APP:NOT_FOUND" />
+		</validation:is-not-null>
+		<db:delete doc:name="Delete Region" doc:id="6f704dec-4bf1-4629-848a-5553378e4cd3" config-ref="Database_Config" >
+			<db:sql ><![CDATA[DELETE FROM CoronaHotspotRegion
+WHERE region_code = :code]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	code: vars.regionCode
+}]]]></db:input-parameters>
+		</db:delete>
 		<logger level="INFO" message="delete:\regions\(region_code):coronais-api-config" />
 	</flow>
 </mule>
