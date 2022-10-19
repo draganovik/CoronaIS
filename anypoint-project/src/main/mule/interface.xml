@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd ">
-    <apikit:config name="coronais-api-config" api="resource::b1b91335-220d-42e6-bf41-5c9eb06a09d0:coronais-api:2.5.1:raml:zip:coronais-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <apikit:config name="coronais-api-config" api="resource::b1b91335-220d-42e6-bf41-5c9eb06a09d0:coronais-api:2.5.4:raml:zip:coronais-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
     <flow name="coronais-api-main">
         <http:listener config-ref="coronais-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -41,24 +41,24 @@
         <flow-ref doc:name="Flow Reference" doc:id="2503ba69-2fca-4ced-8b27-cf7da050fcdc" name="deleteHospitalById" />
     </flow>
     <flow name="delete:\regions\(region_code):coronais-api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="1800ee13-298a-40bc-83c2-eb88579f458d" name="deleteRegionByRegionCode" />
+        <flow-ref doc:name="Flow Reference" doc:id="1800ee13-298a-40bc-83c2-eb88579f458d" name="deleteRegionByRegionCode" />
     </flow>
-	<flow name="get:\hospitals\(id):coronais-api-config">
+    <flow name="get:\hospitals\(id):coronais-api-config">
         <flow-ref doc:name="Flow Reference" doc:id="1775985d-f765-4193-a738-e6d4881eb909" name="getHospitalById" />
     </flow>
     <flow name="get:\hospitals:coronais-api-config">
         <flow-ref doc:name="Flow Reference" doc:id="657c7816-6532-4315-a316-ed0f6dd2485d" name="getAllHospitals" />
     </flow>
     <flow name="get:\regions\(region_code):coronais-api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="b9c12087-5c41-4fdf-8bff-e52bb8039cb2" name="getRegionByRegionCode" />
+        <flow-ref doc:name="Flow Reference" doc:id="b9c12087-5c41-4fdf-8bff-e52bb8039cb2" name="getRegionByRegionCode" />
     </flow>
-	<flow name="get:\regions:coronais-api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="37346e14-1107-4455-8936-3426acfdfa9e" name="getAllRegions" />
+    <flow name="get:\regions:coronais-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="37346e14-1107-4455-8936-3426acfdfa9e" name="getAllRegions" />
     </flow>
-	<flow name="post:\hospitals:application\json:coronais-api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="2e83938f-45f9-4a3c-9cb0-e32c6671644c" name="postHospital" />
+    <flow name="post:\hospitals:application\json:coronais-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="2e83938f-45f9-4a3c-9cb0-e32c6671644c" name="postHospital" />
     </flow>
-	<flow name="post:\regions:application\json:coronais-api-config">
-		<flow-ref doc:name="Flow Reference" doc:id="81b317f6-9e22-4ad8-aa7b-fbbb9b05af4d" name="postRegion" />
+    <flow name="post:\regions:application\json:coronais-api-config">
+        <flow-ref doc:name="Flow Reference" doc:id="81b317f6-9e22-4ad8-aa7b-fbbb9b05af4d" name="postRegion" />
     </flow>
 </mule>

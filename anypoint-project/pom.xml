@@ -86,7 +86,7 @@
 		<dependency>
 			<groupId>b1b91335-220d-42e6-bf41-5c9eb06a09d0</groupId>
 			<artifactId>coronais-api</artifactId>
-			<version>2.5.1</version>
+			<version>2.5.4</version>
 			<classifier>raml</classifier>
 			<type>zip</type>
 		</dependency>

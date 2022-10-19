@@ -6,67 +6,9 @@
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
-	<flow name="readAndFormatPatient" doc:id="2b0bc6e7-7937-49b0-a4fd-6dbfe24c469f" >
-		<db:query-single doc:name="SELECT patient data from DB" doc:id="3475ae69-d835-4c09-b109-5f72d8d9feb9" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT
-PA.state_issued_id,
-PA.start_of_isolation,
-PA.isolation_days,
-PA.full_name,
-PA.departure_region_code,
-CHR.region_name,
-PA.has_symptoms,
-PA.phone_number,
-PA.hospital_id,
-HO.max_capacity,
-HO.facility_name,
-PA.citizenship
-FROM Patient PA
-LEFT JOIN Hospital HO ON HO.id = PA.hospital_id
-LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code
-WHERE PA.state_issued_id = :id]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
-	id : payload
-}]]]></db:input-parameters>
-		</db:query-single>
-		<validation:is-true doc:name="Patient data is returned" doc:id="a47f1e1c-4cae-48e8-96e7-66df92a59589" expression="#[payload.state_issued_id != null]" message="Patient does not exist">
-			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" />
-		</validation:is-true>
-		<ee:transform doc:name="Transform patient data to datatype" doc:id="550e6335-f481-47b2-80d0-db3763fa4d06" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
-import between from dw::core::Periods
-
-var datetimeNow = now() as String {format: "y-MM-d"} as Date
-fun isolationEndDate() =
-(
-	(payload.start_of_isolation default datetimeNow) as Date  +
-	("P" ++ (payload.isolation_days default "0") as String ++ "D") as Period
-) as Date
----
-{
-	full_name: payload.full_name,
-	days_of_isolation_left: between(isolationEndDate() as Date, datetimeNow).days,
-	state_issued_id: payload.state_issued_id,
-	start_of_isolation: payload.start_of_isolation as String {format: "y-MM-d"},
-	departure_region:
-		{
-			region_code: payload.departure_region_code,
-			(if(payload.region_name != null) region_name: payload.region_name else null),
-		},
-	has_symptoms: payload.has_symptoms,
-	phone_number: payload.phone_number,
-	(if(payload.hospital_id != null) hospital: Mule::lookup('getHospitaData',payload.hospital_id) else null),
-	citizenship: payload.citizenship
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-		<logger level="INFO" doc:name="Logger" doc:id="916a2f4e-1fe7-4812-8a63-3022ba57af35" />
-	</flow>
 	<flow name="getPatients" doc:id="30179a03-12d6-4cbf-b1ef-af8e3d1bda3d" >
-		<set-variable value='#[%dw 2.0&#10;output application/java&#10;---&#10;"SELECT&#10;PA.state_issued_id,&#10;PA.start_of_isolation,&#10;PA.isolation_days,&#10;PA.full_name,&#10;PA.departure_region_code,&#10;CHR.region_name,&#10;PA.has_symptoms,&#10;PA.phone_number,&#10;PA.hospital_id,&#10;HO.max_capacity,&#10;HO.facility_name,&#10;PA.citizenship&#10;FROM Patient PA&#10;LEFT JOIN Hospital HO ON HO.id = PA.hospital_id&#10;LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code&#10;WHERE 1=1" ++&#10;&#10;(if(attributes.queryParams.hotspot_departure_region ~= "true")&#10;" AND CHR.region_code IS NOT NULL"&#10;else if(attributes.queryParams.hotspot_departure_region ~= "false")&#10;" AND CHR.region_code IS NULL"&#10;else ""&#10;) ++&#10;&#10;(if(!isEmpty(attributes.queryParams.departure_region))&#10;" AND PA.departure_region_code = :region_code"&#10;else ""&#10;)&#10;++&#10;&#10;(if(!isEmpty(attributes.queryParams.hospital_id))&#10;" AND HO.id = :hospital_id"&#10;else ""&#10;)++&#10;&#10;(if(!isEmpty(attributes.queryParams.reg_days_elapsed))&#10;" AND DATE_SUB(current_date(), INTERVAL :reg_days DAY) = PA.start_of_isolation"&#10;else ""&#10;)]' doc:name="Set DB Query as variable" doc:id="c5561a2c-255b-4daf-b391-8f659b5f1a76" variableName="dbQuery"/>
-		<db:select doc:name="SELECT all patients from DB" doc:id="136ac622-f043-43d7-b31f-15b37af1e7ce" config-ref="Database_Config">
+		<set-variable value='#[%dw 2.0&#10;output application/java&#10;---&#10;"SELECT&#10;PA.state_issued_id,&#10;PA.start_of_isolation,&#10;PA.isolation_days,&#10;PA.full_name,&#10;PA.departure_region_code,&#10;CHR.region_name,&#10;PA.has_symptoms,&#10;PA.phone_number,&#10;PA.hospital_id,&#10;HO.max_capacity,&#10;HO.facility_name,&#10;PA.citizenship&#10;FROM Patient PA&#10;LEFT JOIN Hospital HO ON HO.id = PA.hospital_id&#10;LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code&#10;WHERE 1=1" ++&#10;&#10;(if(attributes.queryParams.hotspot_departure_region ~= "true")&#10;" AND CHR.region_code IS NOT NULL"&#10;else if(attributes.queryParams.hotspot_departure_region ~= "false")&#10;" AND CHR.region_code IS NULL"&#10;else ""&#10;) ++&#10;&#10;(if(!isEmpty(attributes.queryParams.departure_region))&#10;" AND PA.departure_region_code = :region_code"&#10;else ""&#10;)&#10;++&#10;&#10;(if(!isEmpty(attributes.queryParams.hospital_id))&#10;" AND HO.id = :hospital_id"&#10;else ""&#10;)++&#10;&#10;(if(!isEmpty(attributes.queryParams.reg_days_elapsed))&#10;" AND DATE_SUB(current_date(), INTERVAL :reg_days DAY) = PA.start_of_isolation"&#10;else ""&#10;)]' doc:name="Set SQL query to vars.dbQuery" doc:id="c5561a2c-255b-4daf-b391-8f659b5f1a76" variableName="dbQuery"/>
+		<db:select doc:name="SELECT ALL patients from database" doc:id="136ac622-f043-43d7-b31f-15b37af1e7ce" config-ref="Database_Config">
 			<db:sql ><![CDATA[#[vars.dbQuery]]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	region_code: attributes.queryParams.departure_region,
@@ -74,10 +16,10 @@ fun isolationEndDate() =
 	reg_days: attributes.queryParams.reg_days_elapsed
 }]]]></db:input-parameters>
 		</db:select>
-		<validation:is-true doc:name="Patient data are returned" doc:id="1ba94e3f-2da0-40d0-8e43-246472f25a53" expression="#[sizeOf(payload) &gt; 0]" message="Patients not found" >
-			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" />
-		</validation:is-true>
-		<ee:transform doc:name="Transform patients data to datatype" doc:id="ed96ef95-da79-4670-af4b-0ac107110dae">
+		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="238e6337-d05c-4ca0-97f6-152bd4798562" message="Patients not found">
+			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
+		</validation:is-not-empty-collection>
+		<ee:transform doc:name="Transform all patients to datatype" doc:id="ed96ef95-da79-4670-af4b-0ac107110dae">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -110,13 +52,13 @@ payload map (payload01, index) -> {
 		<logger level="INFO" message="get:\patients:coronais-api-config" />
 	</flow>
 	<flow name="getPatientById" doc:id="b0e8a679-e399-4266-91fb-0e010faf4628" >
-		<set-payload value="#[attributes.uriParams.'issued_state_id']" doc:name="Set id from URI to payload" doc:id="139a6444-5ad1-418e-b765-51a18c54dfd2" />
+		<set-payload value="#[attributes.uriParams.'issued_state_id']" doc:name="Set URI id to payload" doc:id="139a6444-5ad1-418e-b765-51a18c54dfd2" />
 		<flow-ref doc:name="Reference readAndFormatPatient" doc:id="2318e64f-4f3a-4818-afce-e590ad11b49b" name="readAndFormatPatient"/>
 		<logger level="INFO" message="get:\patients\(issued_state_id):coronais-api-config" />
 	</flow>
 	<flow name="getPatientStatus" doc:id="e0f5c232-f2e7-4792-97e1-c8b7aa72b854" >
-		<flow-ref doc:name="Get patient by id" doc:id="acf5e63a-d55a-4451-b416-81d0c6d89473" name="getPatientById"/>
-		<ee:transform doc:name="Transform data to status format" doc:id="8e447487-b8ca-45b5-bff6-5811600748e6" >
+		<flow-ref doc:name="Reference getPatientById" doc:id="acf5e63a-d55a-4451-b416-81d0c6d89473" name="getPatientById"/>
+		<ee:transform doc:name="Transform Status response" doc:id="8e447487-b8ca-45b5-bff6-5811600748e6" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -131,5 +73,63 @@ output application/json
 			</ee:message>
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="d9306685-1950-447a-9867-c0c1b06de7b9" message="get:\patients\(issued_state_id)\status:coronais-api-config" />
+	</flow>
+	<flow name="readAndFormatPatient" doc:id="2b0bc6e7-7937-49b0-a4fd-6dbfe24c469f">
+		<db:query-single doc:name="SELECT Patient from database" doc:id="3475ae69-d835-4c09-b109-5f72d8d9feb9" config-ref="Database_Config">
+			<db:sql><![CDATA[SELECT
+PA.state_issued_id,
+PA.start_of_isolation,
+PA.isolation_days,
+PA.full_name,
+PA.departure_region_code,
+CHR.region_name,
+PA.has_symptoms,
+PA.phone_number,
+PA.hospital_id,
+HO.max_capacity,
+HO.facility_name,
+PA.citizenship
+FROM Patient PA
+LEFT JOIN Hospital HO ON HO.id = PA.hospital_id
+LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code
+WHERE PA.state_issued_id = :id]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	id : payload
+}]]]></db:input-parameters>
+		</db:query-single>
+		<validation:is-true doc:name="state_issued_id is not NULL" doc:id="a47f1e1c-4cae-48e8-96e7-66df92a59589" expression="#[payload.state_issued_id != null]" message="Patient does not exist">
+			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" />
+		</validation:is-true>
+		<ee:transform doc:name="Transform Patient to datatype" doc:id="550e6335-f481-47b2-80d0-db3763fa4d06">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+import between from dw::core::Periods
+
+var datetimeNow = now() as String {format: "y-MM-d"} as Date
+fun isolationEndDate() =
+(
+	(payload.start_of_isolation default datetimeNow) as Date  +
+	("P" ++ (payload.isolation_days default "0") as String ++ "D") as Period
+) as Date
+---
+{
+	full_name: payload.full_name,
+	days_of_isolation_left: between(isolationEndDate() as Date, datetimeNow).days,
+	state_issued_id: payload.state_issued_id,
+	start_of_isolation: payload.start_of_isolation as String {format: "y-MM-d"},
+	departure_region:
+		{
+			region_code: payload.departure_region_code,
+			(if(payload.region_name != null) region_name: payload.region_name else null),
+		},
+	has_symptoms: payload.has_symptoms,
+	phone_number: payload.phone_number,
+	(if(payload.hospital_id != null) hospital: Mule::lookup('getHospitaData',payload.hospital_id) else null),
+	citizenship: payload.citizenship
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="916a2f4e-1fe7-4812-8a63-3022ba57af35" />
 	</flow>
 </mule>

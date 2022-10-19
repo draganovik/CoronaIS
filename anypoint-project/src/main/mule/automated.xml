@@ -15,26 +15,26 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 				<cron expression="0 45 14 1/1 * ? *" timeZone="Europe/Belgrade" />
 			</scheduling-strategy>
 		</scheduler>
-		<db:query-single doc:name="Select in isolation" doc:id="e7b1cee0-554b-4a10-a964-132f1814f63f" config-ref="Database_Config" target="inIsolation" targetValue="#[payload.in_isolation]">
+		<db:query-single doc:name="SELECT Patients [in isolation]" doc:id="e7b1cee0-554b-4a10-a964-132f1814f63f" config-ref="Database_Config" target="inIsolation" targetValue="#[payload.in_isolation]">
 			<db:sql ><![CDATA[SELECT COUNT(state_issued_id) as "in_isolation"
 FROM Patient
 WHERE state_issued_id NOT IN (SELECT PH.state_issued_id FROM PatientHistory PH);]]></db:sql>
 		</db:query-single>
-		<db:query-single doc:name="Select out of isolation" doc:id="f9252f4e-12e1-444c-a4a9-8a7c6c8b7408" config-ref="Database_Config" target="outOfIsolation" targetValue="#[payload.out_of_isolation]">
+		<db:query-single doc:name="SELECT Patients [out of isolation]" doc:id="f9252f4e-12e1-444c-a4a9-8a7c6c8b7408" config-ref="Database_Config" target="outOfIsolation" targetValue="#[payload.out_of_isolation]">
 			<db:sql ><![CDATA[SELECT COUNT(DISTINCT state_issued_id) as 'out_of_isolation'
 FROM PatientHistory
 WHERE state_issued_id NOT IN (SELECT PA.state_issued_id FROM Patient PA);]]></db:sql>
 		</db:query-single>
-		<db:query-single doc:name="Select number of hospitals" doc:id="189425e7-8740-40be-ae60-1aa8c97244de" config-ref="Database_Config" target="hospitalNumber" targetValue="#[payload.hospital_count]">
+		<db:query-single doc:name="SELECT Hospital count" doc:id="189425e7-8740-40be-ae60-1aa8c97244de" config-ref="Database_Config" target="hospitalNumber" targetValue="#[payload.hospital_count]">
 			<db:sql><![CDATA[SELECT COUNT(id) as 'hospital_count'
 FROM Hospital]]></db:sql>
 		</db:query-single>
-		<db:query-single doc:name="Select has symptoms" doc:id="e1b10c00-b8af-4d17-9554-a7f512c95fc6" config-ref="Database_Config" target="hasSymptoms" targetValue="#[payload.has_symptoms]">
+		<db:query-single doc:name="SELECT Patient [has symptoms]" doc:id="e1b10c00-b8af-4d17-9554-a7f512c95fc6" config-ref="Database_Config" target="hasSymptoms" targetValue="#[payload.has_symptoms]">
 			<db:sql><![CDATA[SELECT COUNT(state_issued_id) as has_symptoms
 FROM Patient
 WHERE has_symptoms = 1]]></db:sql>
 		</db:query-single>
-		<email:send doc:name="Send Daily Report" doc:id="58c742bb-62a6-4132-9a26-99de3fe1ffe4" config-ref="Email_SMTP" fromAddress="#[Mule::p('smtp.user')]" subject='#["[CORONAIS] Daily Report " ++ now() as String {format: "y-MM-d"}]' toAddresses="#[Mule::p(&quot;smtp.receivers&quot;) splitBy(',')]">
+		<email:send doc:name="SMTP SEND Daily Report" doc:id="58c742bb-62a6-4132-9a26-99de3fe1ffe4" config-ref="Email_SMTP" fromAddress="#[Mule::p('smtp.user')]" subject='#["[CORONAIS] Daily Report " ++ now() as String {format: "y-MM-d"}]' toAddresses="#[Mule::p(&quot;smtp.receivers&quot;) splitBy(',')]">
 			<email:body contentType="text/html" >
 				<email:content ><![CDATA[#["<div style=\"max-width:100ch;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;color: DarkSlateGray;background-color: whitesmoke;padding: 1.4rem;\">
     <h1 style=\"margin: 0\">Daily Corona health status report:</h1>
@@ -64,7 +64,7 @@ WHERE has_symptoms = 1]]></db:sql>
 				<cron expression="0 0 0 1/1 * ? *" timeZone="Europe/Belgrade" />
 			</scheduling-strategy>
 		</scheduler>
-		<db:select doc:name="Select patients that are not in Isolation" doc:id="9dd427b0-68a6-472a-b33f-2031f8c99af2" config-ref="Database_Config">
+		<db:select doc:name="SELECT patients [not in Isolation]" doc:id="9dd427b0-68a6-472a-b33f-2031f8c99af2" config-ref="Database_Config">
 			<db:sql ><![CDATA[SELECT state_issued_id,
  start_of_isolation,
  isolation_days,
@@ -77,8 +77,8 @@ WHERE has_symptoms = 1]]></db:sql>
 FROM Patient
 WHERE DATE_ADD(start_of_isolation, INTERVAL isolation_days DAY) <= current_date();]]></db:sql>
 		</db:select>
-		<set-variable value="#[payload.&amp;state_issued_id]" doc:name="Save patient IDs to vars.idsToDelete" doc:id="2f337199-9147-45ed-ae59-735361cee06f" variableName="idsToDelete"/>
-		<db:bulk-insert doc:name="Bulk insert patients to PatientHistory table" doc:id="d0e01488-5218-43c6-92ab-9528bca6f4d7" config-ref="Database_Config">
+		<set-variable value="#[payload.&amp;state_issued_id]" doc:name="Set Patient ids to vars.idsToDelete" doc:id="2f337199-9147-45ed-ae59-735361cee06f" variableName="idsToDelete"/>
+		<db:bulk-insert doc:name="BULK INSERT PatientHistory" doc:id="d0e01488-5218-43c6-92ab-9528bca6f4d7" config-ref="Database_Config">
 			<db:bulk-input-parameters ><![CDATA[#[output application/java
 ---
 payload]]]></db:bulk-input-parameters>
@@ -102,7 +102,7 @@ VALUES (:state_issued_id,
  :hospital_id,
  :citizenship)]]></db:sql>
 		</db:bulk-insert>
-		<db:bulk-delete doc:name="Bulk delete patients from Patients table" doc:id="62858e3f-6df7-4caf-94b2-302f47334517" config-ref="Database_Config">
+		<db:bulk-delete doc:name="BULK DELETE Patients" doc:id="62858e3f-6df7-4caf-94b2-302f47334517" config-ref="Database_Config">
 			<db:bulk-input-parameters ><![CDATA[#[vars.idsToDelete]]]></db:bulk-input-parameters>
 			<db:sql ><![CDATA[DELETE FROM Patient WHERE state_issued_id = :state_issued_id;
 ]]></db:sql>

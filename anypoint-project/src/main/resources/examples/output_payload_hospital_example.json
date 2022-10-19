@@ -1,5 +1,6 @@
 {
     "id": 1,
     "max_capacity": 420,
+    "avalable_space": 380,
     "facility_name": "Urgentni Korona Centar Novi Sad"
 }
