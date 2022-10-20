@@ -29,7 +29,7 @@
         <flow-ref doc:name="Flow Reference" doc:id="2377d9c0-d0ff-4290-abc4-3d35f307396e" name="getPatientById" />
     </flow>
     <flow name="get:\patients:coronais-api-config" doc:id="5417ff21-4cc3-4521-9171-c23b769f3a85">
-        <flow-ref doc:name="Flow Reference" doc:id="67e73fbc-43ca-4caa-ace1-2cb9058ea4c4" name="getPatients" />
+        <flow-ref doc:name="Flow Reference" doc:id="67e73fbc-43ca-4caa-ace1-2cb9058ea4c4" name="getAllPatients" />
     </flow>
     <flow name="post:\register:application\json:coronais-api-config" doc:id="47ec537e-9f8f-4a54-894b-5687cb781a4e">
         <flow-ref doc:name="Flow Reference" doc:id="34a6f67e-ac11-43b6-bc35-e1c6f6e82f37" name="postRegister" />
