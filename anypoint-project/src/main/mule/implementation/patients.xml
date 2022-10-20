@@ -19,7 +19,7 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="238e6337-d05c-4ca0-97f6-152bd4798562" message="Patients not found">
 			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
 		</validation:is-not-empty-collection>
-		<ee:transform doc:name="Transform all patients to datatype" doc:id="ed96ef95-da79-4670-af4b-0ac107110dae">
+		<ee:transform doc:name="Transform all Patients to datatype" doc:id="ed96ef95-da79-4670-af4b-0ac107110dae">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
 output application/json

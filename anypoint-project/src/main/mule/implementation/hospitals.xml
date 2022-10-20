@@ -133,7 +133,7 @@ WHERE id = :id]]></db:sql>
 		<logger level="INFO" message="delete:\hospitals\(id):coronais-api-config" />
 	</flow>
 	<flow name="assignHospital" doc:id="637afba8-ad5c-45c0-8f6c-4a7251e4e843" >
-		<db:query-single doc:name="SELECT optimal hospital from database" doc:id="efd5ffd2-cf68-4992-90fc-e9cf378e9b32" config-ref="Database_Config" >
+		<db:query-single doc:name="SELECT optimal Hospital from database" doc:id="efd5ffd2-cf68-4992-90fc-e9cf378e9b32" config-ref="Database_Config" >
 			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
 FROM Hospital HO
 LEFT JOIN Patient PA ON PA.hospital_id = HO.id
@@ -141,7 +141,7 @@ GROUP BY id, max_capacity, facility_name
 ORDER BY available_space desc
 LIMIT 1]]></db:sql>
 		</db:query-single>
-		<ee:transform doc:name="Transform hospital to datatype" doc:id="a8294d8b-2456-4e9e-b75d-679c1d7c2c54" >
+		<ee:transform doc:name="Transform Hospital to datatype" doc:id="a8294d8b-2456-4e9e-b75d-679c1d7c2c54" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
@@ -153,7 +153,7 @@ else null]]></ee:set-payload>
 		</ee:transform>
 	</flow>
 	<flow name="getHospitaData" doc:id="c7ed6c4f-f6d4-4cd9-89c2-1a5976682e8f" >
-		<db:query-single doc:name="SELECT hospital from database" doc:id="a9627b95-20f4-41d3-878b-f2bb6830b7a8" config-ref="Database_Config" >
+		<db:query-single doc:name="SELECT Hospital from database" doc:id="a9627b95-20f4-41d3-878b-f2bb6830b7a8" config-ref="Database_Config" >
 			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
 FROM Hospital HO
 JOIN Patient PA ON PA.hospital_id = HO.id
@@ -162,7 +162,7 @@ WHERE id = :id]]></db:sql>
 	id: payload
 }]]]></db:input-parameters>
 		</db:query-single>
-		<ee:transform doc:name="Transform hospital to datatype" doc:id="7368542f-9cab-4a9d-bbee-857adebf0854" >
+		<ee:transform doc:name="Transform Hospital to datatype" doc:id="7368542f-9cab-4a9d-bbee-857adebf0854" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
