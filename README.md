@@ -8,7 +8,7 @@ entering the country.
 
 ## License
 
-[GPLv3](https://choosealicense.com/licenses/gpl-3.0)
+[GPLv3](https://github.com/draganovik/CoronaIS/blob/ba0a0b049466b43dea2eff844fc3233c1ef24301/LICENSE)
 
 
 ## Implementation URI
