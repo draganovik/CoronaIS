@@ -59,11 +59,9 @@ output application/json
 		<logger level="INFO" message="post:\hospitals:application\json:coronais-api-config" />
 	</flow>
 	<flow name="getAllHospitals" doc:id="bb50d5c9-4410-495a-87d0-6e8e493fdb07" >
+		<set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;&quot;SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'&#10;FROM Hospital HO&#10;LEFT JOIN Patient PA ON PA.hospital_id = HO.id&#10;GROUP BY id, max_capacity, facility_name&#10;HAVING 1=1&quot; ++&#10;&#10;(if(attributes.queryParams.has_free_space ~= &quot;true&quot;)&#10;&quot; AND available_space &gt; 0&quot;&#10;else if(attributes.queryParams.has_free_space ~= &quot;false&quot;)&#10;&quot; AND available_space &lt; 1&quot;&#10;else &quot;&quot;&#10;)]" doc:name="Set SQL query to vars.dbQuery" doc:id="f49ee1ca-8162-41ca-84c1-10ccc3a9ee44" variableName="dbQuery" />
 		<db:select doc:name="SELECT ALL Hospitals from database" doc:id="9a581d14-7e2b-4042-a91b-68cb229504f2" config-ref="Database_Config">
-			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
-FROM Hospital HO
-LEFT JOIN Patient PA ON PA.hospital_id = HO.id
-GROUP BY id, max_capacity, facility_name]]></db:sql>
+			<db:sql ><![CDATA[#[vars.dbQuery]]]></db:sql>
 		</db:select>
 		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="3779a617-a06e-4b95-8c93-51af9e95c652" message="Hospitals not found">
 			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />

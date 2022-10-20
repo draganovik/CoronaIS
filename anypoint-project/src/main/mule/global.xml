@@ -30,7 +30,7 @@ http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/m
 	</email:smtp-config>
 	<api-gateway:autodiscovery apiId="18241692" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="2346d9ea-c93c-4e88-8be6-cdee2997257e" flowRef="coronais-api-main" />
 	<sub-flow name="transformErrorMessage" doc:id="977bcbf0-a540-44c3-bb2b-27fe90cedb7f" >
-		<ee:transform doc:name="Transform Message" doc:id="bdabe4f1-b79c-422e-9a2b-a6663f9ebf9e">
+		<ee:transform doc:name="Transform Error message type" doc:id="bdabe4f1-b79c-422e-9a2b-a6663f9ebf9e">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -44,32 +44,32 @@ output application/json
 	</sub-flow>
 	<error-handler name="globalError_Handler" doc:id="86de57e7-1b4f-4b42-8dfe-40a71c562ce8" >
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e1775988-2c26-4f1a-815d-84c23df70d2d" type="APIKIT:BAD_REQUEST, APP:BAD_REQUEST" >
-			<set-variable value="400" doc:name="Set Variable" doc:id="6e048792-97c5-40fd-b291-ac59463916a1" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="cab36f2f-2b19-495c-9e3f-d9c872d55864" name="transformErrorMessage"/>
+			<set-variable value="400" doc:name="Set httpStatus to 400" doc:id="6e048792-97c5-40fd-b291-ac59463916a1" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="cab36f2f-2b19-495c-9e3f-d9c872d55864" name="transformErrorMessage"/>
 		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="2a6d3f8d-9104-4832-8cfe-61f655a954e9" type="APIKIT:NOT_FOUND, APP:NOT_FOUND" >
-			<set-variable value="404" doc:name="Set Variable" doc:id="0293917b-0808-4fe0-b124-9e82cb158633" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="0bdbb4af-7b03-4f67-ad40-287cb5eb24b4" name="transformErrorMessage" />
+			<set-variable value="404" doc:name="Set httpStatus to 404" doc:id="0293917b-0808-4fe0-b124-9e82cb158633" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="0bdbb4af-7b03-4f67-ad40-287cb5eb24b4" name="transformErrorMessage" />
 		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f3b87f6e-1853-4b04-938b-9c0d89c685ad" type="APIKIT:METHOD_NOT_ALLOWED" >
-			<set-variable value=" 405" doc:name="Set Variable" doc:id="0e9ced46-9e95-4575-8349-fd0f715a086e" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="da178dc2-d7ef-4dec-892c-deb4171e2eaa" name="transformErrorMessage" />
+			<set-variable value=" 405" doc:name="Set httpStatus to 405" doc:id="0e9ced46-9e95-4575-8349-fd0f715a086e" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="da178dc2-d7ef-4dec-892c-deb4171e2eaa" name="transformErrorMessage" />
 		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3aae0a97-3541-481c-9514-0b820e787d49" type="APIKIT:NOT_ACCEPTABLE" >
-			<set-variable value="406" doc:name="Set Variable" doc:id="7fbe7be0-6b5f-424a-990d-e400acb0e4d8" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="4aa2b6ed-54ae-4491-8177-3743e759646a" name="transformErrorMessage" />
+			<set-variable value="406" doc:name="Set httpStatus to 406" doc:id="7fbe7be0-6b5f-424a-990d-e400acb0e4d8" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="4aa2b6ed-54ae-4491-8177-3743e759646a" name="transformErrorMessage" />
 		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="df7c7172-5498-457a-b214-42eafbab9cba" type="APIKIT:UNSUPPORTED_MEDIA_TYPE" >
-			<set-variable value="415" doc:name="Set Variable" doc:id="4d685c02-2f98-4d09-aeec-5fe1484a8e86" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="56e8deb3-5286-4909-bf98-f45786716cfe" name="transformErrorMessage" />
+			<set-variable value="415" doc:name="Set httpStatus to 415" doc:id="4d685c02-2f98-4d09-aeec-5fe1484a8e86" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="56e8deb3-5286-4909-bf98-f45786716cfe" name="transformErrorMessage" />
 		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="ffecdda1-d520-4422-bc19-507027398bd9" type="APIKIT:NOT_IMPLEMENTED" >
-			<set-variable value="501" doc:name="Set Variable" doc:id="d27f6bd0-a496-474e-8c8f-98a9f4dd4c32" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="c3a41cb1-4648-4262-b8e6-ed10c6def2f5" name="transformErrorMessage" />
+			<set-variable value="501" doc:name="Set httpStatus to 501" doc:id="d27f6bd0-a496-474e-8c8f-98a9f4dd4c32" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="c3a41cb1-4648-4262-b8e6-ed10c6def2f5" name="transformErrorMessage" />
 		</on-error-propagate>
 		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="de49a8f8-5d8f-4fcc-a555-14c1ae311652" >
-			<set-variable value="500" doc:name="Set Variable" doc:id="21313277-4221-4761-85b3-64052ef1543e" variableName="httpStatus" />
-			<flow-ref doc:name="Flow Reference" doc:id="675e0b2b-e531-41a1-9030-f2d211acc499" name="transformErrorMessage" />
+			<set-variable value="500" doc:name="500" doc:id="21313277-4221-4761-85b3-64052ef1543e" variableName="httpStatus" />
+			<flow-ref doc:name="Reference transformErrorMessage" doc:id="675e0b2b-e531-41a1-9030-f2d211acc499" name="transformErrorMessage" />
 		</on-error-propagate>
 	</error-handler>
 </mule>
