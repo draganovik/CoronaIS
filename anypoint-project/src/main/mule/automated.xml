@@ -77,6 +77,9 @@ WHERE has_symptoms = 1]]></db:sql>
 FROM Patient
 WHERE DATE_ADD(start_of_isolation, INTERVAL isolation_days DAY) <= current_date();]]></db:sql>
 		</db:select>
+		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="23c95d02-0eb5-4ab6-b34d-e65b53935e8b" message="There are no Patients with expiring isolation time">
+			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
+		</validation:is-not-empty-collection>
 		<set-variable value="#[payload.&amp;state_issued_id]" doc:name="Set Patient ids to vars.idsToDelete" doc:id="2f337199-9147-45ed-ae59-735361cee06f" variableName="idsToDelete"/>
 		<db:bulk-insert doc:name="BULK INSERT PatientHistory" doc:id="d0e01488-5218-43c6-92ab-9528bca6f4d7" config-ref="Database_Config">
 			<db:bulk-input-parameters ><![CDATA[#[output application/java
