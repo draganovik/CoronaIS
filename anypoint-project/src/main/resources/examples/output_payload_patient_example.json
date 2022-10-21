@@ -10,6 +10,7 @@
   "has_symptoms": false,
   "hospital": {
     "id": 1,
+    "avalable_space": 100,
     "max_capacity": 420,
     "facility_name": "Urgentni Korona Centar Novi Sad"
   },

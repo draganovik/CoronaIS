@@ -8,7 +8,7 @@ http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/cu
 http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
 	<flow name="getAllPatients" doc:id="30179a03-12d6-4cbf-b1ef-af8e3d1bda3d" >
 		<set-variable value='#[%dw 2.0&#10;output application/java&#10;---&#10;"SELECT&#10;PA.state_issued_id,&#10;PA.start_of_isolation,&#10;PA.isolation_days,&#10;PA.full_name,&#10;PA.departure_region_code,&#10;CHR.region_name,&#10;PA.has_symptoms,&#10;PA.phone_number,&#10;PA.hospital_id,&#10;HO.max_capacity,&#10;HO.facility_name,&#10;PA.citizenship&#10;FROM Patient PA&#10;LEFT JOIN Hospital HO ON HO.id = PA.hospital_id&#10;LEFT JOIN CoronaHotspotRegion CHR on CHR.region_code = PA.departure_region_code&#10;WHERE 1=1" ++&#10;&#10;(if(attributes.queryParams.hotspot_departure_region ~= "true")&#10;" AND CHR.region_code IS NOT NULL"&#10;else if(attributes.queryParams.hotspot_departure_region ~= "false")&#10;" AND CHR.region_code IS NULL"&#10;else ""&#10;) ++&#10;&#10;(if(!isEmpty(attributes.queryParams.departure_region))&#10;" AND PA.departure_region_code = :region_code"&#10;else ""&#10;)&#10;++&#10;&#10;(if(!isEmpty(attributes.queryParams.hospital_id))&#10;" AND HO.id = :hospital_id"&#10;else ""&#10;)++&#10;&#10;(if(!isEmpty(attributes.queryParams.reg_days_elapsed))&#10;" AND DATE_SUB(current_date(), INTERVAL :reg_days DAY) = PA.start_of_isolation"&#10;else ""&#10;)]' doc:name="Set SQL query to vars.dbQuery" doc:id="c5561a2c-255b-4daf-b391-8f659b5f1a76" variableName="dbQuery"/>
-		<db:select doc:name="SELECT ALL patients from database" doc:id="136ac622-f043-43d7-b31f-15b37af1e7ce" config-ref="Database_Config">
+		<db:select doc:name="SELECT ALL patients from database" doc:id="136ac622-f043-43d7-b31f-15b37af1e7ce" config-ref="Database_Config" target="patients">
 			<db:sql ><![CDATA[#[vars.dbQuery]]]></db:sql>
 			<db:input-parameters ><![CDATA[#[{
 	region_code: attributes.queryParams.departure_region,
@@ -16,9 +16,17 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	reg_days: attributes.queryParams.reg_days_elapsed
 }]]]></db:input-parameters>
 		</db:select>
-		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="238e6337-d05c-4ca0-97f6-152bd4798562" message="Patients not found">
+		<validation:is-not-empty-collection doc:name="vars.patients is not empty collection" doc:id="238e6337-d05c-4ca0-97f6-152bd4798562" message="Patients not found" values="#[vars.patients]">
 			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
 		</validation:is-not-empty-collection>
+		<try doc:name="Try" doc:id="3981dc02-38c3-454d-bb65-701513a2d8bd" >
+			<flow-ref doc:name="Reference getAllHospitals" doc:id="264ffabb-4516-4a9c-bf37-d0c239ff1ad0" name="getAllHospitals" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a3bcc5be-cbfe-49f3-a8cf-61fe3ce53ceb" type="APP:NOT_FOUND">
+					<set-payload value="[]" doc:name="Set Empty Payload" doc:id="ef07a57e-c6d5-46bf-8eb0-bdd4b49adbc5" />
+				</on-error-continue>
+			</error-handler>
+		</try>
 		<ee:transform doc:name="Transform all Patients to datatype" doc:id="ed96ef95-da79-4670-af4b-0ac107110dae">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
@@ -32,7 +40,7 @@ fun isolationEndDate(date, days) =
 	("P" ++ (days default "0") ++ "D") as Period
 ) as Date
 ---
-payload map (payload01, index) -> {
+vars.patients map (payload01, index) -> {
 	full_name: payload01.full_name,
 	days_of_isolation_left: between(isolationEndDate(payload01.start_of_isolation, payload01.isolation_days) as Date, datetimeNow).days,
 	state_issued_id: payload01.state_issued_id,
@@ -44,7 +52,7 @@ payload map (payload01, index) -> {
 		},
 	has_symptoms: payload01.has_symptoms,
 	phone_number: payload01.phone_number,
-	(if(payload01.hospital_id != null) hospital: Mule::lookup('getHospitaData',payload01.hospital_id) else null),
+	(if(payload01.hospital_id != null and !isEmpty(payload)) hospital: (payload filter $.id == payload01.hospital_id)[0] else null),
 	citizenship: payload01.citizenship
 }]]></ee:set-payload>
 			</ee:message>
@@ -75,7 +83,7 @@ output application/json
 		<logger level="INFO" doc:name="Logger" doc:id="d9306685-1950-447a-9867-c0c1b06de7b9" message="get:\patients\(issued_state_id)\status:coronais-api-config" />
 	</flow>
 	<flow name="readAndFormatPatient" doc:id="2b0bc6e7-7937-49b0-a4fd-6dbfe24c469f">
-		<db:query-single doc:name="SELECT Patient from database" doc:id="3475ae69-d835-4c09-b109-5f72d8d9feb9" config-ref="Database_Config">
+		<db:query-single doc:name="SELECT Patient from database" doc:id="3475ae69-d835-4c09-b109-5f72d8d9feb9" config-ref="Database_Config" target="patient">
 			<db:sql><![CDATA[SELECT
 PA.state_issued_id,
 PA.start_of_isolation,
@@ -97,9 +105,17 @@ WHERE PA.state_issued_id = :id]]></db:sql>
 	id : payload
 }]]]></db:input-parameters>
 		</db:query-single>
-		<validation:is-true doc:name="state_issued_id is not NULL" doc:id="a47f1e1c-4cae-48e8-96e7-66df92a59589" expression="#[payload.state_issued_id != null]" message="Patient does not exist">
+		<validation:is-true doc:name="state_issued_id is not NULL" doc:id="a47f1e1c-4cae-48e8-96e7-66df92a59589" expression="#[vars.patient.state_issued_id != null]" message="Patient does not exist">
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" />
 		</validation:is-true>
+		<try doc:name="Try" doc:id="c02dbffa-c358-4c64-8766-991293d49d8e" >
+			<flow-ref doc:name="Reference getAllHospitals" doc:id="6f9968cb-f059-4710-9ff4-89b65e88ff48" name="getAllHospitals" />
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="a34318d9-df3b-4214-8ea6-78d202533915" type="APP:NOT_FOUND" >
+					<set-payload value="#[[]]" doc:name="Set Empty Payload" doc:id="7f30dbe3-ed0f-47f1-9cc5-d03890a72e45" />
+				</on-error-continue>
+			</error-handler>
+		</try>
 		<ee:transform doc:name="Transform Patient to datatype" doc:id="550e6335-f481-47b2-80d0-db3763fa4d06">
 			<ee:message>
 				<ee:set-payload><![CDATA[%dw 2.0
@@ -109,24 +125,24 @@ import between from dw::core::Periods
 var datetimeNow = now() as String {format: "y-MM-d"} as Date
 fun isolationEndDate() =
 (
-	(payload.start_of_isolation default datetimeNow) as Date  +
-	("P" ++ (payload.isolation_days default "0") as String ++ "D") as Period
+	(vars.patient.start_of_isolation default datetimeNow) as Date  +
+	("P" ++ (vars.patient.isolation_days default "0") as String ++ "D") as Period
 ) as Date
 ---
 {
-	full_name: payload.full_name,
+	full_name: vars.patient.full_name,
 	days_of_isolation_left: between(isolationEndDate() as Date, datetimeNow).days,
-	state_issued_id: payload.state_issued_id,
-	start_of_isolation: payload.start_of_isolation as String {format: "y-MM-d"},
+	state_issued_id: vars.patient.state_issued_id,
+	start_of_isolation: vars.patient.start_of_isolation as String {format: "y-MM-d"},
 	departure_region:
 		{
-			region_code: payload.departure_region_code,
-			(if(payload.region_name != null) region_name: payload.region_name else null),
+			region_code: vars.patient.departure_region_code,
+			(if(vars.patient.region_name != null) region_name: vars.patient.region_name else null),
 		},
-	has_symptoms: payload.has_symptoms,
-	phone_number: payload.phone_number,
-	(if(payload.hospital_id != null) hospital: Mule::lookup('getHospitaData',payload.hospital_id) else null),
-	citizenship: payload.citizenship
+	has_symptoms: vars.patient.has_symptoms,
+	phone_number: vars.patient.phone_number,
+	(if(vars.patient.hospital_id != null and !isEmpty(payload)) hospital: (payload filter $.id == vars.patient.hospital_id)[0] else null),
+	citizenship: vars.patient.citizenship
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>

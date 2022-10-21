@@ -30,12 +30,13 @@ type output_payload_patient = {|
   has_symptoms: Boolean, 
   hospital: {|
     id: Number {"typeId": "int"}, 
+    avalable_space: Number {"typeId": "int"}, 
     max_capacity: Number {"typeId": "int"}, 
     facility_name: String
   |}, 
   phone_number: String, 
   citizenship: String
-|} {"example": "{\\\"state_issued_id\\\":\\\"999121234903\\\",\\\"start_of_isolation\\\":\\\"2020-10-10\\\",\\\"days_of_isolation_left\\\":20,\\\"full_name\\\":\\\"Mike Ross\\\",\\\"departure_region\\\":{\\\"region_code\\\":\\\"MNE\\\",\\\"region_name\\\":\\\"Crna Gora\\\"},\\\"has_symptoms\\\":false,\\\"hospital\\\":{\\\"id\\\":1,\\\"max_capacity\\\":420,\\\"facility_name\\\":\\\"Urgentni Korona Centar Novi Sad\\\"},\\\"phone_number\\\":\\\"+381652455888\\\",\\\"citizenship\\\":\\\"SRB\\\"}"}
+|} {"example": "{\\\"state_issued_id\\\":\\\"999121234903\\\",\\\"start_of_isolation\\\":\\\"2020-10-10\\\",\\\"days_of_isolation_left\\\":20,\\\"full_name\\\":\\\"Mike Ross\\\",\\\"departure_region\\\":{\\\"region_code\\\":\\\"MNE\\\",\\\"region_name\\\":\\\"Crna Gora\\\"},\\\"has_symptoms\\\":false,\\\"hospital\\\":{\\\"id\\\":1,\\\"avalable_space\\\":100,\\\"max_capacity\\\":420,\\\"facility_name\\\":\\\"Urgentni Korona Centar Novi Sad\\\"},\\\"phone_number\\\":\\\"+381652455888\\\",\\\"citizenship\\\":\\\"SRB\\\"}"}
 
 ]]></types:shape>
     </types:type>
@@ -1105,6 +1106,15 @@ properties:
           <types:attributes type="input_attributes_hospital_id"/>
         </types:message>
       </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#ed96ef95-da79-4670-af4b-0ac107110dae">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="output_payload_patient"/>
+        </types:message>
+      </types:output-event>
     </types:processor-declaration>
   </types:enrichment>
 </types:mule>

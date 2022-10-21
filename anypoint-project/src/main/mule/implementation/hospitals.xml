@@ -152,28 +152,4 @@ else null]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>
-	<flow name="getHospitaData" doc:id="c7ed6c4f-f6d4-4cd9-89c2-1a5976682e8f" >
-		<db:query-single doc:name="SELECT Hospital from database" doc:id="a9627b95-20f4-41d3-878b-f2bb6830b7a8" config-ref="Database_Config" >
-			<db:sql ><![CDATA[SELECT id, max_capacity, facility_name, (max_capacity - COUNT(PA.state_issued_id)) as 'available_space'
-FROM Hospital HO
-JOIN Patient PA ON PA.hospital_id = HO.id
-WHERE id = :id]]></db:sql>
-			<db:input-parameters ><![CDATA[#[{
-	id: payload
-}]]]></db:input-parameters>
-		</db:query-single>
-		<ee:transform doc:name="Transform Hospital to datatype" doc:id="7368542f-9cab-4a9d-bbee-857adebf0854" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
-output application/json
----
-{
-	id: payload.id default 0,
-	avalable_space: payload.available_space,
-	max_capacity: payload.max_capacity default 0,
-	facility_name: payload.facility_name default ""
-}]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-	</flow>
 </mule>
