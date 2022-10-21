@@ -55,7 +55,7 @@ WHERE has_symptoms = 1]]></db:sql>
 </div>"]]]></email:content>
 			</email:body>
 		</email:send>
-		<logger level="INFO" doc:name="Logger" doc:id="5f5e9a38-f2f9-4c56-9863-cdae8ebc0e30" message="Hi Novi Sad!"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5f5e9a38-f2f9-4c56-9863-cdae8ebc0e30" message="automated:reportDailyStatsEmail"/>
 	
 </flow>
 	<flow name="handlePatientEndOfIsolation" doc:id="2823d81e-21a2-4f32-99ee-0f0239ed1cbc" >
@@ -77,15 +77,14 @@ WHERE has_symptoms = 1]]></db:sql>
 FROM Patient
 WHERE DATE_ADD(start_of_isolation, INTERVAL isolation_days DAY) <= current_date();]]></db:sql>
 		</db:select>
-		<validation:is-not-empty-collection doc:name="payload is not empty collection" doc:id="23c95d02-0eb5-4ab6-b34d-e65b53935e8b" message="There are no Patients with expiring isolation time">
-			<error-mapping sourceType="VALIDATION:EMPTY_COLLECTION" targetType="APP:NOT_FOUND" />
-		</validation:is-not-empty-collection>
-		<set-variable value="#[payload.&amp;state_issued_id]" doc:name="Set Patient ids to vars.idsToDelete" doc:id="2f337199-9147-45ed-ae59-735361cee06f" variableName="idsToDelete"/>
-		<db:bulk-insert doc:name="BULK INSERT PatientHistory" doc:id="d0e01488-5218-43c6-92ab-9528bca6f4d7" config-ref="Database_Config">
-			<db:bulk-input-parameters ><![CDATA[#[output application/java
+		<choice doc:name="Choice" doc:id="53182e3f-90c9-422f-94fa-065006a1a15f" >
+			<when expression="#[!isEmpty(payload)]">
+				<set-variable value="#[payload.&amp;state_issued_id]" doc:name="Set Patient ids to vars.idsToDelete" doc:id="2f337199-9147-45ed-ae59-735361cee06f" variableName="idsToDelete" />
+				<db:bulk-insert doc:name="BULK INSERT PatientHistory" doc:id="d0e01488-5218-43c6-92ab-9528bca6f4d7" config-ref="Database_Config">
+			<db:bulk-input-parameters><![CDATA[#[output application/java
 ---
 payload]]]></db:bulk-input-parameters>
-			<db:sql ><![CDATA[INSERT INTO PatientHistory
+			<db:sql><![CDATA[INSERT INTO PatientHistory
 (state_issued_id,
  start_of_isolation,
  isolation_days,
@@ -105,12 +104,17 @@ VALUES (:state_issued_id,
  :hospital_id,
  :citizenship)]]></db:sql>
 		</db:bulk-insert>
-		<db:bulk-delete doc:name="BULK DELETE Patients" doc:id="62858e3f-6df7-4caf-94b2-302f47334517" config-ref="Database_Config">
-			<db:bulk-input-parameters ><![CDATA[#[vars.idsToDelete]]]></db:bulk-input-parameters>
-			<db:sql ><![CDATA[DELETE FROM Patient WHERE state_issued_id = :state_issued_id;
+				<db:bulk-delete doc:name="BULK DELETE Patients" doc:id="62858e3f-6df7-4caf-94b2-302f47334517" config-ref="Database_Config">
+			<db:bulk-input-parameters><![CDATA[#[vars.idsToDelete]]]></db:bulk-input-parameters>
+			<db:sql><![CDATA[DELETE FROM Patient WHERE state_issued_id = :state_issued_id;
 ]]></db:sql>
 		</db:bulk-delete>
-		<logger level="INFO" doc:name="Logger" doc:id="3fabe400-41a8-4c12-bbfb-b5cb92e67af4" message="Hi Novi Sad!" />
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="No Patients message logger" doc:id="711c9bba-ca40-4523-be68-e884f09d1447" message="No Patients are moved out of isolation" />
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="3fabe400-41a8-4c12-bbfb-b5cb92e67af4" message="automated:handlePatientEndOfIsolation" />
 	</flow>
 
 </mule>

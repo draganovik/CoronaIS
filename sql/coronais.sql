@@ -82,3 +82,6 @@ LEFT JOIN Patient PA ON PA.hospital_id = HO.id
 GROUP BY id, max_capacity, facility_name
 ORDER BY available_space desc
 LIMIT 1;
+
+SELECT * FROM Patient;
+SELECT * FROM PatientHistory;
