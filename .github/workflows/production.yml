@@ -60,6 +60,7 @@ jobs:
         mvn -B package --file pom.xml
     - name: Stamp artifact file name with commit hash
       run: |
+        cd anypoint-project
         artifactName1=$(ls target/*.jar | head -1)
         commitHash=$(git rev-parse --short "$GITHUB_SHA")
         artifactName2=$(ls target/*.jar | head -1 | sed "s/.jar/-$commitHash.jar/g")
