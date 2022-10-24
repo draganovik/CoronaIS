@@ -1,11 +1,12 @@
-# This workflow will build a MuleSoft project and is manually triggered for deployment.
+# This workflow will build a MuleSoft project and deploy to CloudHub
 
-name: Manual workflow
+name: Build and Deploy to CloudHub
 
 on:
   push:
-    branches: [main]
-  
+    branches: [ main ]
+  workflow_dispatch:
+    
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -21,6 +22,38 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: maven-settings-xml-action
+      uses: whelk-io/maven-settings-xml-action@v16
+      with:
+        repositories: |
+                [
+                  {
+                    "id": "MuleRepository",
+                    "name": "MuleRepository",
+                    "url": "https://repository.mulesoft.org/nexus-ee/content/repositories/releases-ee/",
+                    "releases": {
+                      "enabled": "true"
+                    },
+                    "snapshots": {
+                      "enabled": "true"
+                    }
+                  }
+                ]
+        servers: |
+                [
+                  {
+                    "id": "anypoint-exchange-v2",
+                    "username": "${{ secrets.ANYPOINT_USERNAME }}",
+                    "password": "${{ secrets.ANYPOINT_PASSWORD }}",
+                    "configuration": {
+                      "httpConfiguration": {
+                        "all": {
+                          "usePreemptive": "true"
+                        }
+                      }
+                    }
+                  }
+                ]
     - name: Print effective-settings (optional)
       run: mvn help:effective-settings
     - name: Build with Maven
@@ -36,6 +69,7 @@ jobs:
       with:
           name: artifacts
           path: target/*.jar
+        
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -56,4 +90,8 @@ jobs:
         PASSWORD: ${{ secrets.ANYPOINT_PASSWORD }}
       run: |
         artifactName=$(ls *.jar | head -1)
-        mvn package deploy -DmuleDeploy -Danypoint.env=Sandbox -Danypoint.appName=githubactionsci-cdpipeline -Danypoint.username=${{ secrets.ANYPOINT_USERNAME }} -Danypoint.password=${{ secrets.ANYPOINT_PASSWORD }}  -Danypoint.muleVersion=4.3.0 -Danypoint.region=us-west-1 -Danypoint.workers=2
+        mvn deploy -DmuleDeploy \
+         -Dmule.artifact=$artifactName \
+         -Danypoint.username="$USERNAME" \
+         -Danypoint.password="$PASSWORD" \
+         -DskipTests
