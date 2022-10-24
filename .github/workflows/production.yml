@@ -30,7 +30,7 @@ jobs:
                   {
                     "id": "MuleRepository",
                     "name": "MuleRepository",
-                    "url": "https://repository.mulesoft.org/nexus-ee/content/repositories/releases-ee/",
+                    "url": "https://repository.mulesoft.org/nexus/content/repositories/public/",
                     "releases": {
                       "enabled": "true"
                     },
