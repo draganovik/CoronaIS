@@ -85,6 +85,7 @@ jobs:
     - uses: actions/download-artifact@master
       with:
         name: artifacts
+        path: anypoint-project/target
     - name: Deploy to CloudHub
       env:
         USERNAME: ${{ secrets.ANYPOINT_USERNAME }}
