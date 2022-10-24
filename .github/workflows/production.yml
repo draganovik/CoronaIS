@@ -22,38 +22,6 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: maven-settings-xml-action
-      uses: whelk-io/maven-settings-xml-action@v16
-      with:
-        repositories: |
-                [
-                  {
-                    "id": "MuleRepository",
-                    "name": "MuleRepository",
-                    "url": "https://repository.mulesoft.org/nexus/content/repositories/public/",
-                    "releases": {
-                      "enabled": "true"
-                    },
-                    "snapshots": {
-                      "enabled": "true"
-                    }
-                  }
-                ]
-        servers: |
-                [
-                  {
-                    "id": "anypoint-exchange-v2",
-                    "username": "${{ secrets.ANYPOINT_USERNAME }}",
-                    "password": "${{ secrets.ANYPOINT_PASSWORD }}",
-                    "configuration": {
-                      "httpConfiguration": {
-                        "all": {
-                          "usePreemptive": "true"
-                        }
-                      }
-                    }
-                  }
-                ]
     - name: Build with Maven
       run: |
         cd anypoint-project
@@ -91,7 +59,7 @@ jobs:
         USERNAME: ${{ secrets.ANYPOINT_USERNAME }}
         PASSWORD: ${{ secrets.ANYPOINT_PASSWORD }}
       run: |
-        cd anypoint-project
+        cd anypoint-project/target
         artifactName=$(ls *.jar | head -1)
         mvn deploy -DmuleDeploy \
          -Dmule.artifact=$artifactName \
