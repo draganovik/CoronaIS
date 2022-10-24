@@ -56,8 +56,7 @@ jobs:
                 ]
     - name: Build with Maven
       run: |
-        pwd
-        ls
+        cd anypoint-project
         mvn -B package --file pom.xml
     - name: Stamp artifact file name with commit hash
       run: |
