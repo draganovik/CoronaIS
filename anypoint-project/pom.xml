@@ -36,25 +36,18 @@
 							<artifactId>mysql-connector-java</artifactId>
 						</sharedLibrary>
 					</sharedLibraries>
-				</configuration>
-			</plugin>
-			<plugin> 
-				<groupId>org.apache.maven.plugins</groupId> 
-				<artifactId>maven-clean-plugin</artifactId> 
-				<version>3.0.0</version> 
-				<configuration> 
 					<cloudHubDeployment> 
 						<uri>https://anypoint.mulesoft.com</uri>
-						<muleVersion>${anypoint.muleVersion}</muleVersion>
+						<muleVersion>4.4.0</muleVersion>
 						<username>${anypoint.username}</username> 
 						<password>${anypoint.password}</password>
-						<applicationName>${anypoint.appName}</applicationName>
-						<environment>${anypoint.env}</environment>  
-						<region>${anypoint.region}</region> 
-						<workers>${anypoint.workers}</workers> 
+						<applicationName>coronais-ws</applicationName>
+						<environment>Sandbox</environment>  
+						<region>us-east-2</region> 
+						<workers>1</workers> 
 						<objectStoreV2>true</objectStoreV2> 
 					</cloudHubDeployment> 
- 				</configuration> 
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>
