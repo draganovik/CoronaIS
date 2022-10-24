@@ -1,0 +1,16 @@
+# Define environment variables here
+
+http:
+  port: "8081"
+db:
+  database: ""
+  user: ""
+  host: ""
+  password: ""
+  port: ''
+smtp:
+  host: ""
+  port: ""
+  user: ""
+  receivers: [ "" ]
+  password: ""
