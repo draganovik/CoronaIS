@@ -54,10 +54,11 @@ jobs:
                     }
                   }
                 ]
-    - name: Print effective-settings (optional)
-      run: mvn help:effective-settings
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: |
+        pwd
+        ls
+        mvn -B package --file pom.xml
     - name: Stamp artifact file name with commit hash
       run: |
         artifactName1=$(ls target/*.jar | head -1)
