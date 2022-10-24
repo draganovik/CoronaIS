@@ -4,10 +4,10 @@ name: Manual workflow
 
 on:
   workflow_dispatch:
-    branches: [main]
+    #branches: [main]
     inputs:
       name:
-        description: 'prod deployment ?'
+        description: 'Production Deployment?'
         default: 'yes'
         required: true
 
@@ -26,7 +26,7 @@ jobs:
       uses: actions/setup-java@v2
       with:
         distribution: 'temurin'
-        java-version: 1.8
+        java-version: 8
     - name: Build
       run: mvn -B package --file pom.xml
     - name: Stamp artifact file name with commit hash
