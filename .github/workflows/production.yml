@@ -69,7 +69,7 @@ jobs:
       uses: actions/upload-artifact@master
       with:
           name: artifacts
-          path: target/*.jar
+          path: anypoint-project/target/*.jar
         
   deploy:
     needs: build
