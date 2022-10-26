@@ -43,7 +43,7 @@ output application/json
 			</ee:transform>
 	</sub-flow>
 	<error-handler name="globalError_Handler" doc:id="86de57e7-1b4f-4b42-8dfe-40a71c562ce8" >
-		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e1775988-2c26-4f1a-815d-84c23df70d2d" type="APIKIT:BAD_REQUEST, APP:BAD_REQUEST" >
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="e1775988-2c26-4f1a-815d-84c23df70d2d" type="APIKIT:BAD_REQUEST, APP:BAD_REQUEST, DB:QUERY_EXECUTION" >
 			<set-variable value="400" doc:name="Set httpStatus to 400" doc:id="6e048792-97c5-40fd-b291-ac59463916a1" variableName="httpStatus" />
 			<flow-ref doc:name="Reference transformErrorMessage" doc:id="cab36f2f-2b19-495c-9e3f-d9c872d55864" name="transformErrorMessage"/>
 		</on-error-propagate>

@@ -61,7 +61,7 @@ vars.patients map (payload01, index) -> {
 	</flow>
 	<flow name="getPatientById" doc:id="b0e8a679-e399-4266-91fb-0e010faf4628" >
 		<set-payload value="#[attributes.uriParams.'issued_state_id']" doc:name="Set URI id to payload" doc:id="139a6444-5ad1-418e-b765-51a18c54dfd2" />
-		<flow-ref doc:name="Reference readAndFormatPatient" doc:id="2318e64f-4f3a-4818-afce-e590ad11b49b" name="readAndFormatPatient"/>
+		<flow-ref doc:name="Reference selectTransformPatient" doc:id="2318e64f-4f3a-4818-afce-e590ad11b49b" name="selectTransformPatient"/>
 		<logger level="INFO" message="get:\patients\(issued_state_id):coronais-api-config" />
 	</flow>
 	<flow name="getPatientStatus" doc:id="e0f5c232-f2e7-4792-97e1-c8b7aa72b854" >
@@ -82,7 +82,7 @@ output application/json
 		</ee:transform>
 		<logger level="INFO" doc:name="Logger" doc:id="d9306685-1950-447a-9867-c0c1b06de7b9" message="get:\patients\(issued_state_id)\status:coronais-api-config" />
 	</flow>
-	<flow name="readAndFormatPatient" doc:id="2b0bc6e7-7937-49b0-a4fd-6dbfe24c469f">
+	<flow name="selectTransformPatient" doc:id="2b0bc6e7-7937-49b0-a4fd-6dbfe24c469f">
 		<db:query-single doc:name="SELECT Patient from database" doc:id="3475ae69-d835-4c09-b109-5f72d8d9feb9" config-ref="Database_Config" target="patient">
 			<db:sql><![CDATA[SELECT
 PA.state_issued_id,
@@ -105,7 +105,7 @@ WHERE PA.state_issued_id = :id]]></db:sql>
 	id : payload
 }]]]></db:input-parameters>
 		</db:query-single>
-		<validation:is-true doc:name="state_issued_id is not NULL" doc:id="a47f1e1c-4cae-48e8-96e7-66df92a59589" expression="#[vars.patient.state_issued_id != null]" message="Patient does not exist">
+		<validation:is-true doc:name="Patient is selected" doc:id="a47f1e1c-4cae-48e8-96e7-66df92a59589" expression="#[vars.patient.state_issued_id?]" message="Patient does not exist">
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:NOT_FOUND" />
 		</validation:is-true>
 		<try doc:name="Try" doc:id="c02dbffa-c358-4c64-8766-991293d49d8e" >

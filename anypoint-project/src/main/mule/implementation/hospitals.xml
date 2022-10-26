@@ -9,9 +9,9 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 	<flow name="postHospital" doc:id="1d58942c-149e-431f-99a5-22c5edb4387d" >
 		<set-variable value="#[payload]" doc:name="Set payload to vars.request" doc:id="1ab5f77b-1f8d-42d1-991f-4a59e8876264" variableName="request"/>
 		<choice doc:name="Choice payload.id is empty" doc:id="0a1ebb13-5966-47ea-a2b5-5bb969b1913f" >
-			<when expression="#[!isEmpty(payload.id)]">
+			<when expression="#[payload.id?]">
 				<db:query-single doc:name="Select id from database" doc:id="380b4a07-2612-4ed8-b5b5-a55357e329a6" config-ref="Database_Config">
-			<db:sql><![CDATA[SELECT state_issued_id
+					<db:sql><![CDATA[SELECT state_issued_id
 FROM Patient
 WHERE state_issued_id = :id]]></db:sql>
 			<db:input-parameters><![CDATA[#[{
@@ -22,7 +22,8 @@ WHERE state_issued_id = :id]]></db:sql>
 			<error-mapping sourceType="VALIDATION:INVALID_BOOLEAN" targetType="APP:BAD_REQUEST" />
 		</validation:is-true>
 				<db:insert doc:name="Insert Hospital with id" doc:id="93b868f5-ed4d-469f-8d29-43bda9e02656" config-ref="Database_Config">
-			<db:sql><![CDATA[INSERT INTO Hospital
+			<error-mapping sourceType="DB:QUERY_EXECUTION" targetType="APP:BAD_REQUEST" />
+					<db:sql><![CDATA[INSERT INTO Hospital
 VALUES(:id, :max_capacity, :facility_name)]]></db:sql>
 			<db:input-parameters><![CDATA[#[output application/json
 ---
@@ -35,6 +36,7 @@ VALUES(:id, :max_capacity, :facility_name)]]></db:sql>
 			</when>
 			<otherwise >
 				<db:insert doc:name="Insert Hospital without id" doc:id="3b47fe66-7c81-4d78-a1d9-deb3778ab146" config-ref="Database_Config" >
+					<error-mapping sourceType="DB:QUERY_EXECUTION" targetType="APP:BAD_REQUEST" />
 					<db:sql ><![CDATA[INSERT INTO Hospital
 VALUES(default, :max_capacity, :facility_name)]]></db:sql>
 					<db:input-parameters ><![CDATA[#[output application/json
