@@ -1,4 +1,4 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-anypoint-project/* linguist-documentation=false
-anypoint-project/* linguist-vendored
+/* linguist-documentation=false
+/* linguist-vendored
